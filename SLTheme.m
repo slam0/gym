@@ -122,6 +122,21 @@ UIImage *SLTabIcon(int kind)
             [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(3, y, 4, 4)] fill];
             [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(10, y + 0.5f, 17, 3)  cornerRadius:1.5f] fill];
         }
+    } else if (kind == 4) {                /* dom = główna */
+        UIBezierPath *roof = [UIBezierPath bezierPath];
+        [roof moveToPoint:CGPointMake(15, 3.5f)];
+        [roof addLineToPoint:CGPointMake(28, 15.5f)];
+        [roof addLineToPoint:CGPointMake(23.5f, 15.5f)];
+        [roof addLineToPoint:CGPointMake(23.5f, 26)];
+        [roof addLineToPoint:CGPointMake(17.5f, 26)];
+        [roof addLineToPoint:CGPointMake(17.5f, 18.5f)];
+        [roof addLineToPoint:CGPointMake(12.5f, 18.5f)];
+        [roof addLineToPoint:CGPointMake(12.5f, 26)];
+        [roof addLineToPoint:CGPointMake(6.5f, 26)];
+        [roof addLineToPoint:CGPointMake(6.5f, 15.5f)];
+        [roof addLineToPoint:CGPointMake(2, 15.5f)];
+        [roof closePath];
+        [roof fill];
     } else {                               /* suwaki = ustawienia */
         static const CGFloat knob[3] = { 19, 9, 16 };
         for (int i = 0; i < 3; i++) {
@@ -270,6 +285,35 @@ NSString *SLDurationString(long seconds)
     sl_split_seconds(seconds, &h, &m, &s);
     if (h > 0) return [NSString stringWithFormat:@"%ld:%02ld:%02ld", h, m, s];
     return [NSString stringWithFormat:@"%02ld:%02ld", m, s];
+}
+
+NSString *SLLongDuration(double seconds)
+{
+    long total = (long)(seconds + 30.0) / 60;      /* zaokrąglenie do minut */
+    long h = total / 60, m = total % 60;
+    if (h > 0) return [NSString stringWithFormat:@"%ld godz. %ld min", h, m];
+    return [NSString stringWithFormat:@"%ld min", m];
+}
+
+NSString *SLGroupedNumber(double v)
+{
+    long n = (long)(v + 0.5);
+    BOOL neg = n < 0;
+    if (neg) n = -n;
+    NSString *digits = [NSString stringWithFormat:@"%ld", n];
+    NSMutableString *out = [NSMutableString string];
+    NSUInteger len = [digits length];
+    for (NSUInteger i = 0; i < len; i++) {
+        if (i > 0 && (len - i) % 3 == 0) [out appendString:@"\u00a0"];
+        [out appendString:[digits substringWithRange:NSMakeRange(i, 1)]];
+    }
+    return neg ? [@"-" stringByAppendingString:out] : out;
+}
+
+NSString *SLBigWeightString(double kg)
+{
+    double v = [SLStore shared].units == 1 ? sl_kg_to_lb(kg) : kg;
+    return [NSString stringWithFormat:@"%@ %@", SLGroupedNumber(v), SLUnitName()];
 }
 
 static NSDateFormatter *SLFormatter(NSString *fmt)

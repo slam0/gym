@@ -1,10 +1,12 @@
-# Siłka – dziennik treningowy na iOS 6
+# Gym – dziennik treningowy na iOS 6 (dawniej Siłka)
 
 Aplikacja do zapisywania treningów na siłowni, napisana w Objective-C pod iOS 6 (jailbreak), budowana w Theosie na GitHubie.
 Wygląd: grafit z połyskiem (odbicia na paskach, przyciskach i komórkach), pomarańczowy akcent.
 
 ## Co potrafi (1.0)
 
+* **Główna** – łączna liczba treningów, łączny czas i objętość (suma kg × powtórzenia ze wszystkich serii), liczba serii i powtórzeń,
+  przyciski **Nowy trening** i **Powtórz poprzedni trening** oraz podsumowanie ostatniego treningu.
 * **Trening** – start treningu, dodawanie ćwiczeń, serie z ciężarem i powtórzeniami, ptaszek „zrobione".
   Przy każdej serii podpowiada wartości z poprzedniego treningu tego ćwiczenia. Oznacza **nowe rekordy** (szacowane 1RM wg wzoru Epleya).
   „Powtórz ostatni trening" tworzy nowy trening z tych samych ćwiczeń.
@@ -32,6 +34,7 @@ Lokalnie: `./build.sh` (potrzebny Theos), test logiki: `gcc sl_core.c tests/core
 | `SLStore.*` | dane: ćwiczenia, treningi, historia, zapis JSON |
 | `sl_core.*` | czysta logika w C (1RM, objętość, odmiana „seria/serie/serii") + `tests/core_test.c` |
 | `SLTheme.*`, `SLViews.*` | wygląd: paski, żelowe przyciski, komórki, wykres |
+| `SLHomeController.*` | zakładka Główna: łączne statystyki i przyciski startu |
 | `SLWorkoutController.*` | zakładka Trening, serie, stoper przerwy |
 | `SLPickerController.*`, `SLExercisesController.*` | lista ćwiczeń, wyszukiwarka, własne ćwiczenia, szczegóły i wykres |
 | `SLHistoryController.*` | historia i podgląd treningu |

@@ -30,5 +30,11 @@ UIView *SLHeaderForTitle(NSString *title, NSString *right);
 @property (nonatomic, copy) NSArray *labels;     /* NSString dla pierwszego i ostatniego punktu */
 @end
 
+/* Błyszczący kafelek z dużą liczbą i podpisem */
+@interface SLStatView : UIView
+@property (nonatomic, copy) NSString *value;
+@property (nonatomic, copy) NSString *caption;
+@end
+
 UIToolbar *SLKeyboardToolbar(id target, SEL doneAction);
 UIImage *SLCheckImage(BOOL on);

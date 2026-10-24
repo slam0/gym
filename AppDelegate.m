@@ -1,6 +1,7 @@
 #import "AppDelegate.h"
 #import "SLStore.h"
 #import "SLTheme.h"
+#import "SLHomeController.h"
 #import "SLWorkoutController.h"
 #import "SLHistoryController.h"
 #import "SLExercisesController.h"
@@ -32,6 +33,7 @@
 
     _workout = [[SLWorkoutController alloc] init];
     NSArray *controllers = [NSArray arrayWithObjects:
+        [self navWith:[[SLHomeController alloc] init] title:@"Główna" kind:4],
         [self navWith:_workout title:@"Trening" kind:0],
         [self navWith:[[SLHistoryController alloc] init] title:@"Historia" kind:1],
         [self navWith:[[SLExercisesController alloc] init] title:@"Ćwiczenia" kind:2],

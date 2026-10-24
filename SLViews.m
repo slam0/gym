@@ -249,6 +249,52 @@ static UIImage *SLFieldImage(void)
 
 @end
 
+/* ---------- kafelek statystyki ---------- */
+
+@implementation SLStatView
+
+- (id)initWithFrame:(CGRect)f
+{
+    if ((self = [super initWithFrame:f])) {
+        self.backgroundColor = [UIColor clearColor];
+        self.contentMode = UIViewContentModeRedraw;
+    }
+    return self;
+}
+
+- (void)setValue:(NSString *)v { _value = [v copy]; [self setNeedsDisplay]; }
+- (void)setCaption:(NSString *)v { _caption = [v copy]; [self setNeedsDisplay]; }
+
+- (void)drawRect:(CGRect)rect
+{
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    CGRect b = CGRectInset(self.bounds, 0.5f, 0.5f);
+    UIBezierPath *shape = [UIBezierPath bezierPathWithRoundedRect:b cornerRadius:10];
+    CGContextSaveGState(c);
+    [shape addClip];
+    Gradient(c, self.bounds, C(74, 78, 88, 1), C(30, 32, 37, 1));
+    /* odbicie: szklany połysk na górnej połowie */
+    Gradient(c, CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * 0.5f), C(255, 255, 255, 0.22f), C(255, 255, 255, 0.04f));
+    CGContextRestoreGState(c);
+    [C(0, 0, 0, 0.9f) setStroke];
+    [shape stroke];
+    [C(255, 255, 255, 0.16f) setFill];
+    CGContextFillRect(c, CGRectMake(8, 1, self.bounds.size.width - 16, 1));
+
+    CGFloat w = self.bounds.size.width;
+    CGContextSetShadowWithColor(c, CGSizeMake(0, -1), 0, C(0, 0, 0, 0.9f).CGColor);
+    [[UIColor whiteColor] set];
+    CGFloat size = 24.0f;
+    UIFont *vf = [UIFont boldSystemFontOfSize:size];
+    /* zmniejsz czcionkę, jeśli wartość się nie mieści */
+    while (size > 12.0f && [_value sizeWithFont:vf].width > w - 10) { size -= 1.0f; vf = [UIFont boldSystemFontOfSize:size]; }
+    [_value drawInRect:CGRectMake(4, 16, w - 8, 30) withFont:vf lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
+    [SLAccentColor() set];
+    [[_caption uppercaseString] drawInRect:CGRectMake(2, 54, w - 4, 16) withFont:[UIFont boldSystemFontOfSize:11] lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
+}
+
+@end
+
 /* ---------- wykres ---------- */
 
 @implementation SLChartView

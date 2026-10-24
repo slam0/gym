@@ -199,7 +199,7 @@ static NSTimeInterval SLWeekStart(void)
     }
     [[SLStore shared] startWorkoutRepeating:_w];
     [self.navigationController popToRootViewControllerAnimated:NO];
-    self.tabBarController.selectedIndex = 0;
+    self.tabBarController.selectedIndex = 1;
 }
 
 @end

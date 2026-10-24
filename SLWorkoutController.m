@@ -79,7 +79,7 @@
     title.textAlignment = NSTextAlignmentCenter;
     title.shadowColor = [UIColor colorWithWhite:0 alpha:0.9f];
     title.shadowOffset = CGSizeMake(0, -1);
-    title.text = @"Siłka";
+    title.text = @"Gym";
     [_startView addSubview:title];
 
     UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(20, 80, 280, 22)];
@@ -272,7 +272,7 @@
     [self refresh];
     UIAlertView *a = [[UIAlertView alloc] initWithTitle:@"Trening zapisany" message:summary delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [a show];
-    if (self.tabBarController) self.tabBarController.selectedIndex = 1;
+    if (self.tabBarController) self.tabBarController.selectedIndex = 2;
 }
 
 - (void)cancelTapped

@@ -356,6 +356,29 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
     return d > 0 ? d : 0;
 }
 
+- (NSDictionary *)totalStats
+{
+    long count = 0, sets = 0, reps = 0;
+    double seconds = 0, volume = 0;
+    for (NSDictionary *w in [self workouts]) {
+        count++;
+        seconds += [SLStore durationOfWorkout:w];
+        for (NSDictionary *e in [w objectForKey:@"entries"]) {
+            for (NSDictionary *s in [e objectForKey:@"sets"]) {
+                if (![[s objectForKey:@"done"] boolValue]) continue;
+                int r = [[s objectForKey:@"reps"] intValue];
+                sets++;
+                reps += r;
+                volume += sl_volume([[s objectForKey:@"kg"] doubleValue], r);
+            }
+        }
+    }
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithLong:count], @"count", [NSNumber numberWithDouble:seconds], @"seconds",
+            [NSNumber numberWithDouble:volume], @"volume", [NSNumber numberWithLong:sets], @"sets",
+            [NSNumber numberWithLong:reps], @"reps", nil];
+}
+
 - (void)clearAll
 {
     [_root removeAllObjects];

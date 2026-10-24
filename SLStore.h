@@ -41,6 +41,8 @@ extern NSString *const SLStoreDidChangeNotification;
 + (NSInteger)doneSetsInWorkout:(NSDictionary *)w;
 + (NSInteger)exerciseCountInWorkout:(NSDictionary *)w;
 + (double)durationOfWorkout:(NSDictionary *)w;
+/* Suma ze wszystkich zakończonych treningów: count, seconds, volume (kg), sets, reps */
+- (NSDictionary *)totalStats;
 
 /* ---- ustawienia ---- */
 @property (nonatomic) NSInteger units;                  /* 0 = kg, 1 = lb */
