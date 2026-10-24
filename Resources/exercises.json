@@ -1,0 +1,765 @@
+[
+{
+"id": "b:barbell-bench-press",
+"name": "Wyciskanie sztangi leżąc",
+"en": "Barbell Bench Press",
+"muscle": "Klatka piersiowa",
+"equip": "sztanga"
+},
+{
+"id": "b:incline-barbell-bench-press",
+"name": "Wyciskanie sztangi na ławce skośnej",
+"en": "Incline Barbell Bench Press",
+"muscle": "Klatka piersiowa",
+"equip": "sztanga"
+},
+{
+"id": "b:decline-barbell-bench-press",
+"name": "Wyciskanie sztangi na ławce skośnej głową w dół",
+"en": "Decline Barbell Bench Press",
+"muscle": "Klatka piersiowa",
+"equip": "sztanga"
+},
+{
+"id": "b:dumbbell-bench-press",
+"name": "Wyciskanie hantli leżąc",
+"en": "Dumbbell Bench Press",
+"muscle": "Klatka piersiowa",
+"equip": "hantle"
+},
+{
+"id": "b:incline-dumbbell-press",
+"name": "Wyciskanie hantli na ławce skośnej",
+"en": "Incline Dumbbell Press",
+"muscle": "Klatka piersiowa",
+"equip": "hantle"
+},
+{
+"id": "b:dumbbell-flyes",
+"name": "Rozpiętki z hantlami",
+"en": "Dumbbell Flyes",
+"muscle": "Klatka piersiowa",
+"equip": "hantle"
+},
+{
+"id": "b:incline-dumbbell-flyes",
+"name": "Rozpiętki na ławce skośnej",
+"en": "Incline Dumbbell Flyes",
+"muscle": "Klatka piersiowa",
+"equip": "hantle"
+},
+{
+"id": "b:machine-pec-deck-fly",
+"name": "Rozpiętki na maszynie (butterfly)",
+"en": "Machine Pec Deck Fly",
+"muscle": "Klatka piersiowa",
+"equip": "maszyna"
+},
+{
+"id": "b:machine-chest-press",
+"name": "Wyciskanie na maszynie (klatka)",
+"en": "Machine Chest Press",
+"muscle": "Klatka piersiowa",
+"equip": "maszyna"
+},
+{
+"id": "b:cable-crossover",
+"name": "Krzyżowanie linek wyciągu",
+"en": "Cable Crossover",
+"muscle": "Klatka piersiowa",
+"equip": "wyciąg"
+},
+{
+"id": "b:push-up",
+"name": "Pompki",
+"en": "Push-Up",
+"muscle": "Klatka piersiowa",
+"equip": "masa ciała"
+},
+{
+"id": "b:chest-dips",
+"name": "Pompki na poręczach (klatka)",
+"en": "Chest Dips",
+"muscle": "Klatka piersiowa",
+"equip": "masa ciała"
+},
+{
+"id": "b:dumbbell-pullover",
+"name": "Przenoszenie hantla za głowę",
+"en": "Dumbbell Pullover",
+"muscle": "Klatka piersiowa",
+"equip": "hantle"
+},
+{
+"id": "b:barbell-deadlift",
+"name": "Martwy ciąg",
+"en": "Barbell Deadlift",
+"muscle": "Plecy",
+"equip": "sztanga"
+},
+{
+"id": "b:sumo-deadlift",
+"name": "Martwy ciąg sumo",
+"en": "Sumo Deadlift",
+"muscle": "Plecy",
+"equip": "sztanga"
+},
+{
+"id": "b:stiff-legged-deadlift",
+"name": "Martwy ciąg na prostych nogach",
+"en": "Stiff-Legged Deadlift",
+"muscle": "Uda (tył)",
+"equip": "sztanga"
+},
+{
+"id": "b:romanian-deadlift",
+"name": "Rumuński martwy ciąg",
+"en": "Romanian Deadlift",
+"muscle": "Uda (tył)",
+"equip": "sztanga"
+},
+{
+"id": "b:dumbbell-romanian-deadlift",
+"name": "Rumuński martwy ciąg z hantlami",
+"en": "Dumbbell Romanian Deadlift",
+"muscle": "Uda (tył)",
+"equip": "hantle"
+},
+{
+"id": "b:pull-up",
+"name": "Podciąganie nachwytem",
+"en": "Pull-Up",
+"muscle": "Plecy",
+"equip": "masa ciała"
+},
+{
+"id": "b:chin-up",
+"name": "Podciąganie podchwytem",
+"en": "Chin-Up",
+"muscle": "Plecy",
+"equip": "masa ciała"
+},
+{
+"id": "b:neutral-grip-pull-up",
+"name": "Podciąganie neutralnym chwytem",
+"en": "Neutral Grip Pull-Up",
+"muscle": "Plecy",
+"equip": "masa ciała"
+},
+{
+"id": "b:lat-pulldown",
+"name": "Ściąganie drążka wyciągu do klatki",
+"en": "Lat Pulldown",
+"muscle": "Plecy",
+"equip": "wyciąg"
+},
+{
+"id": "b:close-grip-lat-pulldown",
+"name": "Ściąganie drążka wąskim chwytem",
+"en": "Close-Grip Lat Pulldown",
+"muscle": "Plecy",
+"equip": "wyciąg"
+},
+{
+"id": "b:bent-over-barbell-row",
+"name": "Wiosłowanie sztangą",
+"en": "Bent Over Barbell Row",
+"muscle": "Plecy",
+"equip": "sztanga"
+},
+{
+"id": "b:underhand-barbell-row",
+"name": "Wiosłowanie sztangą podchwytem",
+"en": "Underhand Barbell Row",
+"muscle": "Plecy",
+"equip": "sztanga"
+},
+{
+"id": "b:one-arm-dumbbell-row",
+"name": "Wiosłowanie hantlem jednorącz",
+"en": "One-Arm Dumbbell Row",
+"muscle": "Plecy",
+"equip": "hantle"
+},
+{
+"id": "b:bent-over-dumbbell-row",
+"name": "Wiosłowanie hantlami w opadzie",
+"en": "Bent Over Dumbbell Row",
+"muscle": "Plecy",
+"equip": "hantle"
+},
+{
+"id": "b:seated-cable-row",
+"name": "Wiosłowanie na wyciągu siedząc",
+"en": "Seated Cable Row",
+"muscle": "Plecy",
+"equip": "wyciąg"
+},
+{
+"id": "b:machine-row",
+"name": "Wiosłowanie na maszynie",
+"en": "Machine Row",
+"muscle": "Plecy",
+"equip": "maszyna"
+},
+{
+"id": "b:t-bar-row",
+"name": "Wiosłowanie T-bar",
+"en": "T-Bar Row",
+"muscle": "Plecy",
+"equip": "sztanga"
+},
+{
+"id": "b:barbell-shrug",
+"name": "Szrugsy ze sztangą",
+"en": "Barbell Shrug",
+"muscle": "Plecy",
+"equip": "sztanga"
+},
+{
+"id": "b:dumbbell-shrug",
+"name": "Szrugsy z hantlami",
+"en": "Dumbbell Shrug",
+"muscle": "Plecy",
+"equip": "hantle"
+},
+{
+"id": "b:hyperextension",
+"name": "Prostowanie pleców na ławce rzymskiej",
+"en": "Hyperextension",
+"muscle": "Plecy",
+"equip": "masa ciała"
+},
+{
+"id": "b:face-pull",
+"name": "Face pull",
+"en": "Face Pull",
+"muscle": "Barki",
+"equip": "wyciąg"
+},
+{
+"id": "b:standing-barbell-overhead-press",
+"name": "Wyciskanie sztangi nad głowę (OHP)",
+"en": "Standing Barbell Overhead Press",
+"muscle": "Barki",
+"equip": "sztanga"
+},
+{
+"id": "b:seated-barbell-press-behind-neck",
+"name": "Wyciskanie sztangi zza głowy siedząc",
+"en": "Seated Barbell Press Behind Neck",
+"muscle": "Barki",
+"equip": "sztanga"
+},
+{
+"id": "b:seated-dumbbell-shoulder-press",
+"name": "Wyciskanie hantli nad głowę siedząc",
+"en": "Seated Dumbbell Shoulder Press",
+"muscle": "Barki",
+"equip": "hantle"
+},
+{
+"id": "b:arnold-dumbbell-press",
+"name": "Wyciskanie Arnolda",
+"en": "Arnold Dumbbell Press",
+"muscle": "Barki",
+"equip": "hantle"
+},
+{
+"id": "b:machine-shoulder-press",
+"name": "Wyciskanie na maszynie (barki)",
+"en": "Machine Shoulder Press",
+"muscle": "Barki",
+"equip": "maszyna"
+},
+{
+"id": "b:dumbbell-lateral-raise",
+"name": "Unoszenie hantli bokiem",
+"en": "Dumbbell Lateral Raise",
+"muscle": "Barki",
+"equip": "hantle"
+},
+{
+"id": "b:dumbbell-front-raise",
+"name": "Unoszenie hantli w przód",
+"en": "Dumbbell Front Raise",
+"muscle": "Barki",
+"equip": "hantle"
+},
+{
+"id": "b:bent-over-dumbbell-rear-delt-raise",
+"name": "Unoszenie hantli w opadzie (tylny akton)",
+"en": "Bent Over Dumbbell Rear Delt Raise",
+"muscle": "Barki",
+"equip": "hantle"
+},
+{
+"id": "b:reverse-machine-fly",
+"name": "Odwrotne rozpiętki na maszynie",
+"en": "Reverse Machine Fly",
+"muscle": "Barki",
+"equip": "maszyna"
+},
+{
+"id": "b:cable-lateral-raise",
+"name": "Unoszenie ramion bokiem na wyciągu",
+"en": "Cable Lateral Raise",
+"muscle": "Barki",
+"equip": "wyciąg"
+},
+{
+"id": "b:upright-barbell-row",
+"name": "Wiosłowanie sztangą do brody",
+"en": "Upright Barbell Row",
+"muscle": "Barki",
+"equip": "sztanga"
+},
+{
+"id": "b:barbell-curl",
+"name": "Uginanie ramion ze sztangą",
+"en": "Barbell Curl",
+"muscle": "Biceps",
+"equip": "sztanga"
+},
+{
+"id": "b:ez-bar-curl",
+"name": "Uginanie ramion ze sztangą łamaną",
+"en": "EZ-Bar Curl",
+"muscle": "Biceps",
+"equip": "sztanga"
+},
+{
+"id": "b:dumbbell-bicep-curl",
+"name": "Uginanie ramion z hantlami",
+"en": "Dumbbell Bicep Curl",
+"muscle": "Biceps",
+"equip": "hantle"
+},
+{
+"id": "b:hammer-curl",
+"name": "Uginanie młotkowe",
+"en": "Hammer Curl",
+"muscle": "Biceps",
+"equip": "hantle"
+},
+{
+"id": "b:preacher-curl",
+"name": "Uginanie ramion na modlitewniku",
+"en": "Preacher Curl",
+"muscle": "Biceps",
+"equip": "sztanga"
+},
+{
+"id": "b:incline-dumbbell-curl",
+"name": "Uginanie ramion na ławce skośnej",
+"en": "Incline Dumbbell Curl",
+"muscle": "Biceps",
+"equip": "hantle"
+},
+{
+"id": "b:cable-curl",
+"name": "Uginanie ramion na wyciągu",
+"en": "Cable Curl",
+"muscle": "Biceps",
+"equip": "wyciąg"
+},
+{
+"id": "b:concentration-curl",
+"name": "Uginanie skoncentrowane",
+"en": "Concentration Curl",
+"muscle": "Biceps",
+"equip": "hantle"
+},
+{
+"id": "b:lying-barbell-triceps-extension",
+"name": "Wyciskanie francuskie sztangi leżąc",
+"en": "Lying Barbell Triceps Extension",
+"muscle": "Triceps",
+"equip": "sztanga"
+},
+{
+"id": "b:close-grip-barbell-bench-press",
+"name": "Wyciskanie wąskim chwytem",
+"en": "Close-Grip Barbell Bench Press",
+"muscle": "Triceps",
+"equip": "sztanga"
+},
+{
+"id": "b:triceps-pushdown-rope-attachment",
+"name": "Prostowanie ramion na wyciągu (linka)",
+"en": "Triceps Pushdown - Rope Attachment",
+"muscle": "Triceps",
+"equip": "wyciąg"
+},
+{
+"id": "b:triceps-pushdown",
+"name": "Prostowanie ramion na wyciągu (drążek)",
+"en": "Triceps Pushdown",
+"muscle": "Triceps",
+"equip": "wyciąg"
+},
+{
+"id": "b:dumbbell-kickback",
+"name": "Prostowanie ramienia z hantlem w opadzie",
+"en": "Dumbbell Kickback",
+"muscle": "Triceps",
+"equip": "hantle"
+},
+{
+"id": "b:standing-dumbbell-triceps-extension",
+"name": "Wyciskanie francuskie hantla zza głowy",
+"en": "Standing Dumbbell Triceps Extension",
+"muscle": "Triceps",
+"equip": "hantle"
+},
+{
+"id": "b:dips-triceps-version",
+"name": "Pompki na poręczach (triceps)",
+"en": "Dips - Triceps Version",
+"muscle": "Triceps",
+"equip": "masa ciała"
+},
+{
+"id": "b:bench-dips",
+"name": "Pompki w podporze tyłem",
+"en": "Bench Dips",
+"muscle": "Triceps",
+"equip": "masa ciała"
+},
+{
+"id": "b:wrist-curl",
+"name": "Uginanie nadgarstków",
+"en": "Wrist Curl",
+"muscle": "Przedramiona",
+"equip": "sztanga"
+},
+{
+"id": "b:reverse-barbell-curl",
+"name": "Odwrotne uginanie ramion",
+"en": "Reverse Barbell Curl",
+"muscle": "Przedramiona",
+"equip": "sztanga"
+},
+{
+"id": "b:farmer-s-walk",
+"name": "Spacer farmera",
+"en": "Farmer's Walk",
+"muscle": "Przedramiona",
+"equip": "hantle"
+},
+{
+"id": "b:barbell-squat",
+"name": "Przysiad ze sztangą",
+"en": "Barbell Squat",
+"muscle": "Uda (przód)",
+"equip": "sztanga"
+},
+{
+"id": "b:front-barbell-squat",
+"name": "Przysiad ze sztangą z przodu",
+"en": "Front Barbell Squat",
+"muscle": "Uda (przód)",
+"equip": "sztanga"
+},
+{
+"id": "b:dumbbell-squat",
+"name": "Przysiad z hantlami",
+"en": "Dumbbell Squat",
+"muscle": "Uda (przód)",
+"equip": "hantle"
+},
+{
+"id": "b:goblet-squat",
+"name": "Przysiad goblet",
+"en": "Goblet Squat",
+"muscle": "Uda (przód)",
+"equip": "kettlebell"
+},
+{
+"id": "b:smith-machine-squat",
+"name": "Przysiad na suwnicy Smitha",
+"en": "Smith Machine Squat",
+"muscle": "Uda (przód)",
+"equip": "maszyna"
+},
+{
+"id": "b:leg-press",
+"name": "Wypychanie na suwnicy",
+"en": "Leg Press",
+"muscle": "Uda (przód)",
+"equip": "maszyna"
+},
+{
+"id": "b:hack-squat",
+"name": "Hack przysiad",
+"en": "Hack Squat",
+"muscle": "Uda (przód)",
+"equip": "maszyna"
+},
+{
+"id": "b:leg-extensions",
+"name": "Prostowanie nóg na maszynie",
+"en": "Leg Extensions",
+"muscle": "Uda (przód)",
+"equip": "maszyna"
+},
+{
+"id": "b:dumbbell-lunges",
+"name": "Wykroki z hantlami",
+"en": "Dumbbell Lunges",
+"muscle": "Uda (przód)",
+"equip": "hantle"
+},
+{
+"id": "b:barbell-lunge",
+"name": "Wykroki ze sztangą",
+"en": "Barbell Lunge",
+"muscle": "Uda (przód)",
+"equip": "sztanga"
+},
+{
+"id": "b:bulgarian-split-squat",
+"name": "Przysiad bułgarski",
+"en": "Bulgarian Split Squat",
+"muscle": "Uda (przód)",
+"equip": "hantle"
+},
+{
+"id": "b:step-up-with-knee-raise",
+"name": "Wejścia na podwyższenie",
+"en": "Step-up with Knee Raise",
+"muscle": "Uda (przód)",
+"equip": "hantle"
+},
+{
+"id": "b:lying-leg-curls",
+"name": "Uginanie nóg leżąc",
+"en": "Lying Leg Curls",
+"muscle": "Uda (tył)",
+"equip": "maszyna"
+},
+{
+"id": "b:seated-leg-curl",
+"name": "Uginanie nóg siedząc",
+"en": "Seated Leg Curl",
+"muscle": "Uda (tył)",
+"equip": "maszyna"
+},
+{
+"id": "b:good-morning",
+"name": "Dzień dobry (good morning)",
+"en": "Good Morning",
+"muscle": "Uda (tył)",
+"equip": "sztanga"
+},
+{
+"id": "b:barbell-hip-thrust",
+"name": "Hip thrust ze sztangą",
+"en": "Barbell Hip Thrust",
+"muscle": "Pośladki",
+"equip": "sztanga"
+},
+{
+"id": "b:glute-bridge",
+"name": "Unoszenie bioder (mostek)",
+"en": "Glute Bridge",
+"muscle": "Pośladki",
+"equip": "masa ciała"
+},
+{
+"id": "b:cable-hip-abduction",
+"name": "Odwodzenie nogi na wyciągu",
+"en": "Cable Hip Abduction",
+"muscle": "Pośladki",
+"equip": "wyciąg"
+},
+{
+"id": "b:thigh-abductor",
+"name": "Odwodzenie nóg na maszynie",
+"en": "Thigh Abductor",
+"muscle": "Pośladki",
+"equip": "maszyna"
+},
+{
+"id": "b:thigh-adductor",
+"name": "Przywodzenie nóg na maszynie",
+"en": "Thigh Adductor",
+"muscle": "Uda (przód)",
+"equip": "maszyna"
+},
+{
+"id": "b:standing-calf-raises",
+"name": "Wspięcia na palce stojąc",
+"en": "Standing Calf Raises",
+"muscle": "Łydki",
+"equip": "maszyna"
+},
+{
+"id": "b:seated-calf-raise",
+"name": "Wspięcia na palce siedząc",
+"en": "Seated Calf Raise",
+"muscle": "Łydki",
+"equip": "maszyna"
+},
+{
+"id": "b:calf-press-on-the-leg-press-machine",
+"name": "Wspięcia na palce na suwnicy",
+"en": "Calf Press On The Leg Press Machine",
+"muscle": "Łydki",
+"equip": "maszyna"
+},
+{
+"id": "b:crunches",
+"name": "Spięcia brzucha",
+"en": "Crunches",
+"muscle": "Brzuch",
+"equip": "masa ciała"
+},
+{
+"id": "b:cable-crunch",
+"name": "Spięcia brzucha na wyciągu",
+"en": "Cable Crunch",
+"muscle": "Brzuch",
+"equip": "wyciąg"
+},
+{
+"id": "b:hanging-leg-raise",
+"name": "Unoszenie nóg w zwisie",
+"en": "Hanging Leg Raise",
+"muscle": "Brzuch",
+"equip": "masa ciała"
+},
+{
+"id": "b:hanging-knee-raise",
+"name": "Unoszenie kolan w zwisie",
+"en": "Hanging Knee Raise",
+"muscle": "Brzuch",
+"equip": "masa ciała"
+},
+{
+"id": "b:plank",
+"name": "Plank (deska)",
+"en": "Plank",
+"muscle": "Brzuch",
+"equip": "masa ciała"
+},
+{
+"id": "b:air-bike",
+"name": "Rowerek",
+"en": "Air Bike",
+"muscle": "Brzuch",
+"equip": "masa ciała"
+},
+{
+"id": "b:russian-twist",
+"name": "Russian twist",
+"en": "Russian Twist",
+"muscle": "Brzuch",
+"equip": "masa ciała"
+},
+{
+"id": "b:kneeling-cable-crunch",
+"name": "Allahy (spięcia na linkach)",
+"en": "Kneeling Cable Crunch",
+"muscle": "Brzuch",
+"equip": "wyciąg"
+},
+{
+"id": "b:ab-roller",
+"name": "Koło do brzucha",
+"en": "Ab Roller",
+"muscle": "Brzuch",
+"equip": "inne"
+},
+{
+"id": "b:flat-bench-lying-leg-raise",
+"name": "Przyciąganie nóg leżąc",
+"en": "Flat Bench Lying Leg Raise",
+"muscle": "Brzuch",
+"equip": "masa ciała"
+},
+{
+"id": "b:snatch",
+"name": "Rwanie sztangi",
+"en": "Snatch",
+"muscle": "Inne",
+"equip": "sztanga"
+},
+{
+"id": "b:clean-and-jerk",
+"name": "Podrzut sztangi",
+"en": "Clean and Jerk",
+"muscle": "Inne",
+"equip": "sztanga"
+},
+{
+"id": "b:power-clean",
+"name": "Zarzut sztangi",
+"en": "Power Clean",
+"muscle": "Inne",
+"equip": "sztanga"
+},
+{
+"id": "b:kettlebell-swing",
+"name": "Swing kettlebell",
+"en": "Kettlebell Swing",
+"muscle": "Inne",
+"equip": "kettlebell"
+},
+{
+"id": "b:box-jump",
+"name": "Wyskoki na skrzynię",
+"en": "Box Jump",
+"muscle": "Inne",
+"equip": "masa ciała"
+},
+{
+"id": "b:burpee",
+"name": "Burpees",
+"en": "Burpee",
+"muscle": "Cardio",
+"equip": "masa ciała"
+},
+{
+"id": "b:running-treadmill",
+"name": "Bieg na bieżni",
+"en": "Running, Treadmill",
+"muscle": "Cardio",
+"equip": "maszyna"
+},
+{
+"id": "b:bicycling-stationary",
+"name": "Rower stacjonarny",
+"en": "Bicycling, Stationary",
+"muscle": "Cardio",
+"equip": "maszyna"
+},
+{
+"id": "b:elliptical-trainer",
+"name": "Orbitrek",
+"en": "Elliptical Trainer",
+"muscle": "Cardio",
+"equip": "maszyna"
+},
+{
+"id": "b:rowing-stationary",
+"name": "Wioślarz (ergometr)",
+"en": "Rowing, Stationary",
+"muscle": "Cardio",
+"equip": "maszyna"
+},
+{
+"id": "b:rope-jumping",
+"name": "Skakanka",
+"en": "Rope Jumping",
+"muscle": "Cardio",
+"equip": "masa ciała"
+},
+{
+"id": "b:walking-treadmill",
+"name": "Marsz na bieżni pod górę",
+"en": "Walking, Treadmill",
+"muscle": "Cardio",
+"equip": "maszyna"
+}
+]
