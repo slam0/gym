@@ -3,5 +3,6 @@
 
 /* Zakładka "Trening": start, aktywny trening z seriami, stoper przerwy. */
 @interface SLWorkoutController : UIViewController <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, SLPickerDelegate, UIActionSheetDelegate, UIAlertViewDelegate>
+- (void)shutdown;                   /* przed zbudowaniem interfejsu od nowa */
 - (void)restDidEndInBackground;     /* wywoływane z AppDelegate po powiadomieniu */
 @end

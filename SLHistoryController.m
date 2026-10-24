@@ -1,6 +1,7 @@
 #import "SLHistoryController.h"
 #import "SLStore.h"
 #import "SLTheme.h"
+#import "SLLang.h"
 #import "SLViews.h"
 #import "sl_core.h"
 
@@ -30,7 +31,7 @@ static NSTimeInterval SLWeekStart(void)
 
 - (id)init
 {
-    if ((self = [super init])) self.title = @"Historia";
+    if ((self = [super init])) self.title = GL(@"Historia");
     return self;
 }
 
@@ -51,7 +52,7 @@ static NSTimeInterval SLWeekStart(void)
     _empty.textAlignment = NSTextAlignmentCenter;
     _empty.font = [UIFont systemFontOfSize:16];
     _empty.textColor = SLSubtleColor();
-    _empty.text = @"Tu pojawią się twoje zakończone treningi.";
+    _empty.text = GL(@"Tu pojawią się twoje zakończone treningi.");
     [self.view addSubview:_empty];
 }
 
@@ -81,8 +82,8 @@ static NSTimeInterval SLWeekStart(void)
     for (NSDictionary *w in [[SLStore shared] workouts]) {
         if ([[w objectForKey:@"start"] doubleValue] >= ws) { n++; vol += [SLStore volumeOfWorkout:w]; }
     }
-    NSString *right = [NSString stringWithFormat:@"%ld %@ · %@", n, SLPlural(n, @"trening", @"treningi", @"treningów"), SLWeightString(vol)];
-    return SLHeaderForTitle(@"Ten tydzień", right);
+    NSString *right = [NSString stringWithFormat:@"%ld %@ · %@", n, SLNounString(n, SLNounWorkout), SLWeightString(vol)];
+    return SLHeaderForTitle(GL(@"Ten tydzień"), right);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip
@@ -91,9 +92,9 @@ static NSTimeInterval SLWeekStart(void)
     NSDictionary *w = [[[SLStore shared] workouts] objectAtIndex:(NSUInteger)ip.row];
     c.textLabel.text = SLDateTimeString([[w objectForKey:@"start"] doubleValue]);
     long min = (long)([SLStore durationOfWorkout:w] / 60.0 + 0.5);
-    c.detailTextLabel.text = [NSString stringWithFormat:@"%ld min · %@ · %@ · %@", min,
-        SLCountString([SLStore exerciseCountInWorkout:w], @"ćwiczenie", @"ćwiczenia", @"ćwiczeń"),
-        SLCountString([SLStore doneSetsInWorkout:w], @"seria", @"serie", @"serii"),
+    c.detailTextLabel.text = [NSString stringWithFormat:@"%ld %@ · %@ · %@ · %@", min, GL(@"min"),
+        SLCountString([SLStore exerciseCountInWorkout:w], SLNounExercise),
+        SLCountString([SLStore doneSetsInWorkout:w], SLNounSet),
         SLWeightString([SLStore volumeOfWorkout:w])];
     c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return c;
@@ -116,7 +117,7 @@ static NSTimeInterval SLWeekStart(void)
     [self reload];
 }
 
-- (NSString *)tableView:(UITableView *)t titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)ip { return @"Usuń"; }
+- (NSString *)tableView:(UITableView *)t titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)ip { return GL(@"Usuń"); }
 
 @end
 
@@ -153,12 +154,12 @@ static NSTimeInterval SLWeekStart(void)
     SLStyleTable(_table);
 
     UIView *foot = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 80)];
-    UIButton *again = SLGelButton(@"Powtórz ten trening", 0, CGRectMake(15, 18, 290, 46));
+    UIButton *again = SLGelButton(GL(@"Powtórz ten trening"), 0, CGRectMake(15, 18, 290, 46));
     [again addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [foot addSubview:again];
     _table.tableFooterView = foot;
 
-    NSString *summary = [NSString stringWithFormat:@"%ld min", (long)([SLStore durationOfWorkout:_w] / 60.0 + 0.5)];
+    NSString *summary = [NSString stringWithFormat:@"%ld %@", (long)([SLStore durationOfWorkout:_w] / 60.0 + 0.5), GL(@"min")];
     UIView *head = SLHeaderForTitle(summary, SLWeightString([SLStore volumeOfWorkout:_w]));
     head.frame = CGRectMake(0, 0, 320, 26);
     _table.tableHeaderView = head;
@@ -192,7 +193,7 @@ static NSTimeInterval SLWeekStart(void)
 - (void)repeatTapped
 {
     if ([[SLStore shared] active]) {
-        UIAlertView *a = [[UIAlertView alloc] initWithTitle:@"Trwa już trening" message:@"Zakończ albo usuń trwający trening, zanim zaczniesz nowy."
+        UIAlertView *a = [[UIAlertView alloc] initWithTitle:GL(@"Trwa już trening") message:GL(@"Zakończ albo usuń trwający trening, zanim zaczniesz nowy.")
                                                     delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [a show];
         return;

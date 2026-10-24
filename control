@@ -1,7 +1,7 @@
 Package: com.nazar0vsky.silka
 Name: Gym
 Depends: firmware (>= 6.0)
-Version: 1.0.0
+Version: 1.1.0
 Architecture: iphoneos-arm
 Description: Dziennik treningowy: cwiczenia, serie, historia, rekordy i stoper przerwy
 Maintainer: nazar0vsky-slam0

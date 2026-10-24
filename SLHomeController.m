@@ -1,6 +1,7 @@
 #import "SLHomeController.h"
 #import "SLStore.h"
 #import "SLTheme.h"
+#import "SLLang.h"
 #import "SLViews.h"
 
 @interface SLHomeController ()
@@ -18,7 +19,7 @@
 
 - (id)init
 {
-    if ((self = [super init])) self.title = @"Główna";
+    if ((self = [super init])) self.title = GL(@"Główna");
     return self;
 }
 
@@ -31,8 +32,7 @@
     l.textColor = color;
     l.font = bold ? [UIFont boldSystemFontOfSize:size] : [UIFont systemFontOfSize:size];
     l.textAlignment = NSTextAlignmentCenter;
-    l.shadowColor = [UIColor colorWithWhite:0 alpha:0.85f];
-    l.shadowOffset = CGSizeMake(0, -1);
+    SLStyleShadow(l);
     [_scroll addSubview:l];
     return l;
 }
@@ -50,26 +50,26 @@
     UILabel *title = [self labelAt:CGRectMake(20, 14, 280, 34) size:28 bold:YES color:SLTextColor()];
     title.text = @"Gym";
     UILabel *sub = [self labelAt:CGRectMake(20, 46, 280, 18) size:13 bold:NO color:SLSubtleColor()];
-    sub.text = @"Twoje treningi w liczbach";
+    sub.text = GL(@"Twoje treningi w liczbach");
 
     _countView  = [[SLStatView alloc] initWithFrame:CGRectMake(10, 76, 96, 76)];
     _timeView   = [[SLStatView alloc] initWithFrame:CGRectMake(112, 76, 96, 76)];
     _volumeView = [[SLStatView alloc] initWithFrame:CGRectMake(214, 76, 96, 76)];
-    _countView.caption = @"Treningi";
-    _timeView.caption = @"Czas";
-    _volumeView.caption = @"Objętość";
+    _countView.caption = GL(@"Treningi");
+    _timeView.caption = GL(@"Czas");
+    _volumeView.caption = GL(@"Objętość");
     [_scroll addSubview:_countView];
     [_scroll addSubview:_timeView];
     [_scroll addSubview:_volumeView];
 
     _detail = [self labelAt:CGRectMake(10, 158, 300, 18) size:13 bold:NO color:SLSubtleColor()];
 
-    _newButton = SLGelButton(@"Nowy trening", 0, CGRectMake(20, 192, 280, 58));
+    _newButton = SLGelButton(GL(@"Nowy trening"), 0, CGRectMake(20, 192, 280, 58));
     _newButton.titleLabel.font = [UIFont boldSystemFontOfSize:22];
     [_newButton addTarget:self action:@selector(newTapped) forControlEvents:UIControlEventTouchUpInside];
     [_scroll addSubview:_newButton];
 
-    _repeatButton = SLGelButton(@"Powtórz poprzedni trening", 1, CGRectMake(20, 262, 280, 46));
+    _repeatButton = SLGelButton(GL(@"Powtórz poprzedni trening"), 1, CGRectMake(20, 262, 280, 46));
     [_repeatButton addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [_scroll addSubview:_repeatButton];
 
@@ -95,24 +95,24 @@
     _timeView.value = SLLongDuration([[t objectForKey:@"seconds"] doubleValue]);
     _volumeView.value = SLBigWeightString([[t objectForKey:@"volume"] doubleValue]);
     long sets = [[t objectForKey:@"sets"] longValue], reps = [[t objectForKey:@"reps"] longValue];
-    _detail.text = n > 0 ? [NSString stringWithFormat:@"%@ · %@", SLCountString(sets, @"seria", @"serie", @"serii"),
-                            SLCountString(reps, @"powtórzenie", @"powtórzenia", @"powtórzeń")]
-                         : @"Zacznij pierwszy trening, a tu pojawią się twoje liczby.";
+    _detail.text = n > 0 ? [NSString stringWithFormat:@"%@ · %@", SLCountString(sets, SLNounSet),
+                            SLCountString(reps, SLNounRep)]
+                         : GL(@"Zacznij pierwszy trening, a tu pojawią się twoje liczby.");
 
     NSDictionary *active = [st active];
     NSArray *ws = [st workouts];
     if (active) {
-        [_newButton setTitle:@"Wróć do treningu" forState:UIControlStateNormal];
+        [_newButton setTitle:GL(@"Wróć do treningu") forState:UIControlStateNormal];
         _repeatButton.hidden = YES;
-        _last.text = @"Masz trwający trening. Dokończ go albo zakończ w zakładce Trening.";
+        _last.text = GL(@"Masz trwający trening. Dokończ go albo zakończ w zakładce Trening.");
     } else {
-        [_newButton setTitle:@"Nowy trening" forState:UIControlStateNormal];
+        [_newButton setTitle:GL(@"Nowy trening") forState:UIControlStateNormal];
         _repeatButton.hidden = [ws count] == 0;
         if ([ws count]) {
             NSDictionary *w = [ws objectAtIndex:0];
-            _last.text = [NSString stringWithFormat:@"Poprzedni trening: %@\n%@, %@",
+            _last.text = [NSString stringWithFormat:GL(@"Poprzedni trening: %@\n%@, %@"),
                           SLDateString([[w objectForKey:@"start"] doubleValue]),
-                          SLCountString([SLStore doneSetsInWorkout:w], @"seria", @"serie", @"serii"),
+                          SLCountString([SLStore doneSetsInWorkout:w], SLNounSet),
                           SLWeightString([SLStore volumeOfWorkout:w])];
         } else {
             _last.text = @"";

@@ -25,6 +25,15 @@ int main(void)
     CHECK(sl_plural_pl(5) == 2 && sl_plural_pl(0) == 2 && sl_plural_pl(11) == 2);
     CHECK(sl_plural_pl(12) == 2 && sl_plural_pl(14) == 2 && sl_plural_pl(22) == 1);
     CHECK(sl_plural_pl(112) == 2 && sl_plural_pl(21) == 2 && sl_plural_pl(101) == 2);
+    /* angielski */
+    CHECK(sl_plural(1, 1) == 0 && sl_plural(1, 0) == 2 && sl_plural(1, 2) == 2 && sl_plural(1, 21) == 2);
+    /* rosyjski: 1 подход, 2-4 подхода, 5+ подходов, 11 подходов, 21 подход, 22 подхода, 111 подходов */
+    CHECK(sl_plural(2, 1) == 0 && sl_plural(2, 21) == 0 && sl_plural(2, 101) == 0);
+    CHECK(sl_plural(2, 2) == 1 && sl_plural(2, 4) == 1 && sl_plural(2, 22) == 1 && sl_plural(2, 104) == 1);
+    CHECK(sl_plural(2, 0) == 2 && sl_plural(2, 5) == 2 && sl_plural(2, 11) == 2 && sl_plural(2, 12) == 2);
+    CHECK(sl_plural(2, 14) == 2 && sl_plural(2, 111) == 2 && sl_plural(2, 20) == 2 && sl_plural(2, 25) == 2);
+    /* polski przez wspólną funkcję */
+    CHECK(sl_plural(0, 1) == 0 && sl_plural(0, 3) == 1 && sl_plural(0, 5) == 2 && sl_plural(0, 22) == 1 && sl_plural(0, 21) == 2);
     long h, m, s;
     sl_split_seconds(3725, &h, &m, &s);
     CHECK(h == 1 && m == 2 && s == 5);

@@ -1,6 +1,7 @@
 #import "SLExercisesController.h"
 #import "SLStore.h"
 #import "SLTheme.h"
+#import "SLLang.h"
 #import "SLViews.h"
 #import "sl_core.h"
 
@@ -21,17 +22,6 @@
 
 /* ---------------------------------------------------------------------- */
 
-static NSString *SLShortDate(double ts)
-{
-    static NSDateFormatter *f;
-    if (!f) {
-        f = [[NSDateFormatter alloc] init];
-        f.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"pl_PL"];
-        f.dateFormat = @"d MMM";
-    }
-    return [f stringFromDate:[NSDate dateWithTimeIntervalSince1970:ts]];
-}
-
 @interface SLExerciseDetailController ()
 {
     NSDictionary *_ex;
@@ -46,7 +36,7 @@ static NSString *SLShortDate(double ts)
 {
     if ((self = [super init])) {
         _ex = exercise;
-        self.title = [exercise objectForKey:@"name"];
+        self.title = [[SLStore shared] displayNameForExercise:exercise];
     }
     return self;
 }
@@ -90,8 +80,8 @@ static NSString *SLShortDate(double ts)
         [vals addObject:[NSNumber numberWithDouble:[SLStore shared].units == 1 ? sl_kg_to_lb(best) : best]];
     }
     if ([chrono count]) {
-        [lbs addObject:SLShortDate([[[chrono objectAtIndex:from] objectForKey:@"date"] doubleValue])];
-        if ([chrono count] - from > 1) [lbs addObject:SLShortDate([[[chrono lastObject] objectForKey:@"date"] doubleValue])];
+        [lbs addObject:SLShortDateString([[[chrono objectAtIndex:from] objectForKey:@"date"] doubleValue])];
+        if ([chrono count] - from > 1) [lbs addObject:SLShortDateString([[[chrono lastObject] objectForKey:@"date"] doubleValue])];
     }
     chart.values = vals;
     chart.labels = lbs;
@@ -112,7 +102,7 @@ static NSString *SLShortDate(double ts)
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
-    if (s == 0) return SLHeaderForTitle(@"Wykres: szacowane 1RM", nil);
+    if (s == 0) return SLHeaderForTitle(GL(@"Wykres: szacowane 1RM"), nil);
     return SLHeaderForTitle(SLDateString([[[_history objectAtIndex:(NSUInteger)s - 1] objectForKey:@"date"] doubleValue]), nil);
 }
 
@@ -122,7 +112,7 @@ static NSString *SLShortDate(double ts)
     c.detailTextLabel.text = nil;
     c.textLabel.font = [UIFont boldSystemFontOfSize:16];
     if (ip.section == 0) {
-        if (![_history count]) { c.textLabel.text = @"Jeszcze nie robiłeś tego ćwiczenia."; return c; }
+        if (![_history count]) { c.textLabel.text = GL(@"Jeszcze nie robiłeś tego ćwiczenia."); return c; }
         double bestKg = 0, bestE = 0, vol = 0;
         for (NSDictionary *h in _history) {
             for (NSDictionary *s in [h objectForKey:@"sets"]) {
@@ -135,10 +125,10 @@ static NSString *SLShortDate(double ts)
             }
         }
         switch (ip.row) {
-            case 0: c.textLabel.text = [NSString stringWithFormat:@"Największy ciężar:  %@", SLWeightString(bestKg)]; break;
-            case 1: c.textLabel.text = [NSString stringWithFormat:@"Szacowane 1RM:  %@", SLWeightString(bestE)]; break;
-            case 2: c.textLabel.text = [NSString stringWithFormat:@"Łączna objętość:  %@", SLWeightString(vol)]; break;
-            default: c.textLabel.text = [NSString stringWithFormat:@"Treningów:  %lu", (unsigned long)[_history count]]; break;
+            case 0: c.textLabel.text = [NSString stringWithFormat:GL(@"Największy ciężar:  %@"), SLWeightString(bestKg)]; break;
+            case 1: c.textLabel.text = [NSString stringWithFormat:GL(@"Szacowane 1RM:  %@"), SLWeightString(bestE)]; break;
+            case 2: c.textLabel.text = [NSString stringWithFormat:GL(@"Łączna objętość:  %@"), SLWeightString(vol)]; break;
+            default: c.textLabel.text = [NSString stringWithFormat:GL(@"Treningów:  %lu"), (unsigned long)[_history count]]; break;
         }
         return c;
     }

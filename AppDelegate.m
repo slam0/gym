@@ -1,6 +1,7 @@
 #import "AppDelegate.h"
 #import "SLStore.h"
 #import "SLTheme.h"
+#import "SLLang.h"
 #import "SLHomeController.h"
 #import "SLWorkoutController.h"
 #import "SLHistoryController.h"
@@ -24,6 +25,40 @@
     return nav;
 }
 
+/* cały interfejs od zera: przy starcie oraz po zmianie motywu albo języka */
+- (UITabBarController *)buildTabs
+{
+    _workout = [[SLWorkoutController alloc] init];
+    NSArray *controllers = [NSArray arrayWithObjects:
+        [self navWith:[[SLHomeController alloc] init] title:GL(@"Główna") kind:4],
+        [self navWith:_workout title:GL(@"Trening") kind:0],
+        [self navWith:[[SLHistoryController alloc] init] title:GL(@"Historia") kind:1],
+        [self navWith:[[SLExercisesController alloc] init] title:GL(@"Ćwiczenia") kind:2],
+        [self navWith:[[SLSettingsController alloc] init] title:GL(@"Ustawienia") kind:3], nil];
+    UITabBarController *tabs = [[UITabBarController alloc] init];
+    tabs.viewControllers = controllers;
+    SLStyleTabBar(tabs.tabBar);
+    return tabs;
+}
+
+- (void)appearanceChanged:(NSNotification *)n
+{
+    /* po wyjściu z obsługi dotknięcia, żeby nie usuwać kontrolera, który właśnie działa */
+    [self performSelector:@selector(rebuildInterface) withObject:nil afterDelay:0.0];
+}
+
+- (void)rebuildInterface
+{
+    UITabBarController *old = (UITabBarController *)self.window.rootViewController;
+    NSUInteger selected = [old isKindOfClass:[UITabBarController class]] ? old.selectedIndex : 0;
+    [old dismissViewControllerAnimated:NO completion:nil];
+    [_workout shutdown];
+    UITabBarController *tabs = [self buildTabs];
+    tabs.selectedIndex = selected;
+    [UIView transitionWithView:self.window duration:0.3 options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{ self.window.rootViewController = tabs; } completion:nil];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [SLStore shared];
@@ -31,18 +66,9 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor blackColor];
 
-    _workout = [[SLWorkoutController alloc] init];
-    NSArray *controllers = [NSArray arrayWithObjects:
-        [self navWith:[[SLHomeController alloc] init] title:@"Główna" kind:4],
-        [self navWith:_workout title:@"Trening" kind:0],
-        [self navWith:[[SLHistoryController alloc] init] title:@"Historia" kind:1],
-        [self navWith:[[SLExercisesController alloc] init] title:@"Ćwiczenia" kind:2],
-        [self navWith:[[SLSettingsController alloc] init] title:@"Ustawienia" kind:3], nil];
-    UITabBarController *tabs = [[UITabBarController alloc] init];
-    tabs.viewControllers = controllers;
-    SLStyleTabBar(tabs.tabBar);
-    self.window.rootViewController = tabs;
+    self.window.rootViewController = [self buildTabs];
     [self.window makeKeyAndVisible];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appearanceChanged:) name:SLAppearanceDidChangeNotification object:nil];
 
     /* ekran powitalny: ten sam obraz co Default.png, przytrzymany chwilę i płynnie zgaszony */
     CGRect bounds = [[UIScreen mainScreen] bounds];

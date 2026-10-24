@@ -35,6 +35,21 @@ int sl_plural_pl(long n)
     return 2;
 }
 
+int sl_plural(int lang, long n)
+{
+    long a, b;
+    if (n < 0) n = -n;
+    if (lang == 1) return n == 1 ? 0 : 2;
+    a = n % 10;
+    b = n % 100;
+    if (lang == 2) {
+        if (a == 1 && b != 11) return 0;
+        if (a >= 2 && a <= 4 && !(b >= 12 && b <= 14)) return 1;
+        return 2;
+    }
+    return sl_plural_pl(n);
+}
+
 void sl_split_seconds(long total, long *h, long *m, long *s)
 {
     if (total < 0) total = 0;

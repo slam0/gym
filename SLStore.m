@@ -1,5 +1,6 @@
 #import "SLStore.h"
 #import "sl_core.h"
+#import "SLLang.h"
 
 NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
 
@@ -52,6 +53,11 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
         }
     }
     _root = obj ? obj : [NSMutableDictionary dictionary];
+    [self ensureDefaults];
+}
+
+- (void)ensureDefaults
+{
     if (![[_root objectForKey:@"workouts"] isKindOfClass:[NSMutableArray class]]) [_root setObject:[NSMutableArray array] forKey:@"workouts"];
     if (![[_root objectForKey:@"custom"] isKindOfClass:[NSMutableArray class]]) [_root setObject:[NSMutableArray array] forKey:@"custom"];
     if (![[_root objectForKey:@"seq"] isKindOfClass:[NSNumber class]]) [_root setObject:[NSNumber numberWithInt:1] forKey:@"seq"];
@@ -90,6 +96,10 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
     return n ? [n integerValue] : 90;
 }
 - (void)setRestSeconds:(NSInteger)s { [_root setObject:[NSNumber numberWithInteger:s] forKey:@"rest"]; [self save]; }
+- (NSInteger)languageSetting { return [[_root objectForKey:@"lang"] integerValue]; }
+- (void)setLanguageSetting:(NSInteger)v { [_root setObject:[NSNumber numberWithInteger:v] forKey:@"lang"]; _all = nil; [self save]; }
+- (NSInteger)themeIndex { return [[_root objectForKey:@"theme"] integerValue]; }
+- (void)setThemeIndex:(NSInteger)v { [_root setObject:[NSNumber numberWithInteger:v] forKey:@"theme"]; [self save]; }
 
 /* ---------- ćwiczenia ---------- */
 
@@ -107,9 +117,10 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
         [m setObject:[NSNumber numberWithBool:YES] forKey:@"custom"];
         [all addObject:m];
     }
+    NSLocale *loc = SLLocale();
     [all sortUsingComparator:^NSComparisonResult(id a, id b) {
-        return [[a objectForKey:@"name"] compare:[b objectForKey:@"name"] options:NSCaseInsensitiveSearch | NSDiacriticInsensitiveSearch
-                                               range:NSMakeRange(0, [[a objectForKey:@"name"] length]) locale:[NSLocale localeWithLocaleIdentifier:@"pl_PL"]];
+        NSString *na = [self displayNameForExercise:a], *nb = [self displayNameForExercise:b];
+        return [na compare:nb options:NSCaseInsensitiveSearch range:NSMakeRange(0, [na length]) locale:loc];
     }];
     _all = all;
     _byId = [NSMutableDictionary dictionary];
@@ -128,10 +139,35 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
     return [_byId objectForKey:exId];
 }
 
+- (NSString *)displayNameForExercise:(NSDictionary *)e
+{
+    NSInteger l = SLLanguage();
+    NSString *n = nil;
+    if (l == 2) n = [e objectForKey:@"ru"];
+    if (!n && l >= 1) n = [e objectForKey:@"en"];
+    if (!n) n = [e objectForKey:@"name"];
+    return n;
+}
+
+- (NSString *)searchTextForExercise:(NSDictionary *)e
+{
+    NSMutableString *s = [NSMutableString string];
+    for (NSString *k in [NSArray arrayWithObjects:@"name", @"en", @"ru", @"muscle", @"equip", nil]) {
+        NSString *v = [e objectForKey:k];
+        if (v) { [s appendString:v]; [s appendString:@" "]; }
+    }
+    [s appendString:GL([e objectForKey:@"muscle"])];
+    [s appendString:@" "];
+    [s appendString:GL([e objectForKey:@"equip"])];
+    return s;
+}
+
+- (void)invalidateExerciseCache { _all = nil; }
+
 - (NSString *)nameForExerciseId:(NSString *)exId
 {
     NSDictionary *e = [self exerciseForId:exId];
-    return e ? [e objectForKey:@"name"] : @"(usunięte ćwiczenie)";
+    return e ? [self displayNameForExercise:e] : GL(@"(usunięte ćwiczenie)");
 }
 
 - (NSString *)addCustomExerciseNamed:(NSString *)name muscle:(NSString *)muscle
@@ -381,8 +417,15 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
 
 - (void)clearAll
 {
+    /* język, motyw i jednostki zostają: to wygląd aplikacji, nie dane treningowe */
+    NSMutableDictionary *keep = [NSMutableDictionary dictionary];
+    for (NSString *k in [NSArray arrayWithObjects:@"lang", @"theme", @"units", @"rest", nil]) {
+        id v = [_root objectForKey:k];
+        if (v) [keep setObject:v forKey:k];
+    }
     [_root removeAllObjects];
-    [self load];
+    [_root addEntriesFromDictionary:keep];
+    [self ensureDefaults];
     _all = nil;
     [self save];
 }

@@ -12,7 +12,10 @@ extern NSString *const SLStoreDidChangeNotification;
 /* ---- ćwiczenia ---- */
 - (NSArray *)allExercises;                              /* [{id,name,en,muscle,equip,custom}] posortowane po nazwie */
 - (NSDictionary *)exerciseForId:(NSString *)exId;
-- (NSString *)nameForExerciseId:(NSString *)exId;
+- (NSString *)nameForExerciseId:(NSString *)exId;        /* w wybranym języku */
+- (NSString *)displayNameForExercise:(NSDictionary *)ex;
+- (NSString *)searchTextForExercise:(NSDictionary *)ex;  /* nazwy we wszystkich językach + partia + sprzęt */
+- (void)invalidateExerciseCache;                        /* po zmianie języka (zmienia się kolejność) */
 - (NSString *)addCustomExerciseNamed:(NSString *)name muscle:(NSString *)muscle;
 - (NSArray *)muscleGroups;                              /* kolejność wyświetlania */
 
@@ -47,6 +50,8 @@ extern NSString *const SLStoreDidChangeNotification;
 /* ---- ustawienia ---- */
 @property (nonatomic) NSInteger units;                  /* 0 = kg, 1 = lb */
 @property (nonatomic) NSInteger restSeconds;            /* 0 = bez stopera */
+@property (nonatomic) NSInteger languageSetting;        /* 0 auto, 1 pl, 2 en, 3 ru */
+@property (nonatomic) NSInteger themeIndex;             /* numer motywu */
 
 - (void)save;
 - (void)clearAll;

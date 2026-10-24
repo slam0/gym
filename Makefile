@@ -17,7 +17,7 @@ include $(THEOS)/makefiles/common.mk
 
 APPLICATION_NAME = Silka
 
-Silka_FILES = main.m AppDelegate.m SLStore.m SLTheme.m SLHomeController.m SLViews.m SLWorkoutController.m SLPickerController.m SLHistoryController.m SLExercisesController.m SLSettingsController.m sl_core.c sl_libc.c
+Silka_FILES = main.m AppDelegate.m SLStore.m SLTheme.m SLHomeController.m SLViews.m SLWorkoutController.m SLPickerController.m SLHistoryController.m SLExercisesController.m SLSettingsController.m SLLang.m sl_core.c sl_libc.c
 Silka_FRAMEWORKS = UIKit Foundation CoreGraphics QuartzCore AudioToolbox
 Silka_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-unused-command-line-argument
 

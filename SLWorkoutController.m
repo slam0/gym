@@ -1,6 +1,7 @@
 #import "SLWorkoutController.h"
 #import "SLStore.h"
 #import "SLTheme.h"
+#import "SLLang.h"
 #import "SLViews.h"
 #import "sl_core.h"
 #import <AudioToolbox/AudioToolbox.h>
@@ -14,9 +15,6 @@
     UIView *_restBar;
     UILabel *_restLabel;
     NSTimer *_timer;
-    double _restEnd;            /* 0 = brak przerwy */
-    NSInteger _restTotal;
-    UILocalNotification *_restNote;
     UIToolbar *_kbBar;
     UIView *_footer;
     UILabel *_hint;
@@ -24,20 +22,31 @@
 }
 @end
 
+/* Stan przerwy żyje poza kontrolerem: przy zmianie motywu albo języka budujemy interfejs od nowa. */
+static double gRestEnd;                    /* 0 = brak przerwy */
+static UILocalNotification *gRestNote;
+
 @implementation SLWorkoutController
 
 - (id)init
 {
     if ((self = [super init])) {
-        self.title = @"Trening";
+        self.title = GL(@"Trening");
     }
     return self;
 }
 
 - (void)dealloc
 {
+    [self shutdown];
+}
+
+/* zatrzymuje stoper i obserwatorów; przerwa (powiadomienie) trwa dalej, bo należy do aplikacji */
+- (void)shutdown
+{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_timer invalidate];
+    _timer = nil;
 }
 
 #pragma mark - widoki
@@ -77,8 +86,7 @@
     title.font = [UIFont boldSystemFontOfSize:30];
     title.textColor = SLTextColor();
     title.textAlignment = NSTextAlignmentCenter;
-    title.shadowColor = [UIColor colorWithWhite:0 alpha:0.9f];
-    title.shadowOffset = CGSizeMake(0, -1);
+    SLStyleShadow(title);
     title.text = @"Gym";
     [_startView addSubview:title];
 
@@ -87,15 +95,15 @@
     sub.font = [UIFont systemFontOfSize:15];
     sub.textColor = SLSubtleColor();
     sub.textAlignment = NSTextAlignmentCenter;
-    sub.text = @"Dziennik treningowy";
+    sub.text = GL(@"Dziennik treningowy");
     [_startView addSubview:sub];
 
-    UIButton *start = SLGelButton(@"Rozpocznij trening", 0, CGRectMake(30, 130, 260, 56));
+    UIButton *start = SLGelButton(GL(@"Rozpocznij trening"), 0, CGRectMake(30, 130, 260, 56));
     start.titleLabel.font = [UIFont boldSystemFontOfSize:21];
     [start addTarget:self action:@selector(startTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:start];
 
-    _repeatButton = SLGelButton(@"Powtórz ostatni trening", 1, CGRectMake(30, 200, 260, 46));
+    _repeatButton = SLGelButton(GL(@"Powtórz ostatni trening"), 1, CGRectMake(30, 200, 260, 46));
     [_repeatButton addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:_repeatButton];
 
@@ -112,13 +120,13 @@
 - (void)buildFooter
 {
     _footer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 190)];
-    UIButton *add = SLGelButton(@"+ Dodaj ćwiczenie", 1, CGRectMake(15, 16, 290, 46));
+    UIButton *add = SLGelButton(GL(@"+ Dodaj ćwiczenie"), 1, CGRectMake(15, 16, 290, 46));
     [add addTarget:self action:@selector(addExerciseTapped) forControlEvents:UIControlEventTouchUpInside];
     [_footer addSubview:add];
-    UIButton *fin = SLGelButton(@"Zakończ trening", 3, CGRectMake(15, 76, 290, 46));
+    UIButton *fin = SLGelButton(GL(@"Zakończ trening"), 3, CGRectMake(15, 76, 290, 46));
     [fin addTarget:self action:@selector(finishTapped) forControlEvents:UIControlEventTouchUpInside];
     [_footer addSubview:fin];
-    UIButton *cancel = SLGelButton(@"Anuluj trening", 2, CGRectMake(15, 134, 290, 40));
+    UIButton *cancel = SLGelButton(GL(@"Anuluj trening"), 2, CGRectMake(15, 134, 290, 40));
     cancel.titleLabel.font = [UIFont boldSystemFontOfSize:15];
     [cancel addTarget:self action:@selector(cancelTapped) forControlEvents:UIControlEventTouchUpInside];
     [_footer addSubview:cancel];
@@ -130,24 +138,24 @@
     _hint.textAlignment = NSTextAlignmentCenter;
     _hint.font = [UIFont systemFontOfSize:15];
     _hint.textColor = SLSubtleColor();
-    _hint.text = @"Dodaj pierwsze ćwiczenie, żeby zacząć wpisywać serie.";
+    _hint.text = GL(@"Dodaj pierwsze ćwiczenie, żeby zacząć wpisywać serie.");
 }
 
 - (void)buildRestBar:(CGRect)b
 {
     _restBar = [[UIView alloc] initWithFrame:CGRectMake(0, b.size.height - 48, b.size.width, 48)];
     _restBar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
-    _restBar.backgroundColor = [UIColor colorWithRed:0.10f green:0.11f blue:0.13f alpha:0.96f];
+    _restBar.backgroundColor = SLRGB(SLP()->chrome, 0.96f);
     UIView *line = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 2)];
     line.backgroundColor = SLAccentColor();
     line.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [_restBar addSubview:line];
     _restLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 8, 120, 34)];
     _restLabel.backgroundColor = [UIColor clearColor];
-    _restLabel.textColor = SLTextColor();
+    _restLabel.textColor = [UIColor whiteColor];
     _restLabel.font = [UIFont boldSystemFontOfSize:20];
     [_restBar addSubview:_restLabel];
-    NSArray *titles = [NSArray arrayWithObjects:@"-15", @"+15", @"Pomiń", nil];
+    NSArray *titles = [NSArray arrayWithObjects:@"-15", @"+15", GL(@"Pomiń"), nil];
     CGFloat xs[3] = { 134, 190, 246 };
     CGFloat ws[3] = { 52, 52, 66 };
     for (int i = 0; i < 3; i++) {
@@ -167,6 +175,7 @@
 {
     [super viewWillAppear:animated];
     [self refresh];
+    if (gRestEnd > 0 && [[SLStore shared] active]) { [self showRest]; [self tick]; }
     if (!_timer) {
         _timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(tick) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
@@ -184,14 +193,14 @@
     BOOL active = [[SLStore shared] active] != nil;
     _startView.hidden = active;
     _table.hidden = !active;
-    self.navigationItem.rightBarButtonItem = active ? SLBarButton(@"Zakończ", self, @selector(finishTapped)) : nil;
+    self.navigationItem.rightBarButtonItem = active ? SLBarButton(GL(@"Zakończ"), self, @selector(finishTapped)) : nil;
     if (active) {
         [_table reloadData];
         _table.tableHeaderView = ([[[SLStore shared] active] objectForKey:@"entries"] && [[[[SLStore shared] active] objectForKey:@"entries"] count] == 0) ? _hint : nil;
         [self updateTitle];
     } else {
         [self refreshStartView];
-        self.navigationItem.title = @"Trening";
+        self.navigationItem.title = GL(@"Trening");
         [self hideRest];
     }
 }
@@ -201,13 +210,13 @@
     NSArray *ws = [[SLStore shared] workouts];
     if ([ws count]) {
         NSDictionary *w = [ws objectAtIndex:0];
-        _lastLabel.text = [NSString stringWithFormat:@"Ostatni trening: %@\n%@, %@",
+        _lastLabel.text = [NSString stringWithFormat:GL(@"Ostatni trening: %@\n%@, %@"),
                            SLDateString([[w objectForKey:@"start"] doubleValue]),
-                           SLCountString([SLStore doneSetsInWorkout:w], @"seria", @"serie", @"serii"),
+                           SLCountString([SLStore doneSetsInWorkout:w], SLNounSet),
                            SLWeightString([SLStore volumeOfWorkout:w])];
         _repeatButton.hidden = NO;
     } else {
-        _lastLabel.text = @"Jeszcze nie masz zapisanych treningów.\nDotknij „Rozpocznij trening”.";
+        _lastLabel.text = GL(@"Jeszcze nie masz zapisanych treningów.\nDotknij „Rozpocznij trening”.");
         _repeatButton.hidden = YES;
     }
 }
@@ -223,12 +232,12 @@
 - (void)tick
 {
     if ([[SLStore shared] active]) [self updateTitle];
-    if (_restEnd > 0) {
-        long left = (long)(_restEnd - [[NSDate date] timeIntervalSince1970] + 0.999);
+    if (gRestEnd > 0) {
+        long left = (long)(gRestEnd - [[NSDate date] timeIntervalSince1970] + 0.999);
         if (left <= 0) {
             [self restFinished];
         } else {
-            _restLabel.text = [NSString stringWithFormat:@"Przerwa %@", SLDurationString(left)];
+            _restLabel.text = [NSString stringWithFormat:GL(@"Przerwa %@"), SLDurationString(left)];
         }
     }
 }
@@ -256,21 +265,21 @@
     if (![st active]) return;
     if (![st activeHasDoneSets]) {
         _pendingAction = 1;
-        UIAlertView *a = [[UIAlertView alloc] initWithTitle:@"Brak wykonanych serii"
-            message:@"Zaznacz serie jako zrobione (ptaszek po prawej) albo usuń ten trening."
-            delegate:self cancelButtonTitle:@"Wróć" otherButtonTitles:@"Usuń trening", nil];
+        UIAlertView *a = [[UIAlertView alloc] initWithTitle:GL(@"Brak wykonanych serii")
+            message:GL(@"Zaznacz serie jako zrobione (ptaszek po prawej) albo usuń ten trening.")
+            delegate:self cancelButtonTitle:GL(@"Wróć") otherButtonTitles:GL(@"Usuń trening"), nil];
         [a show];
         return;
     }
     NSDictionary *w = [st active];
     NSString *summary = [NSString stringWithFormat:@"%@, %@, %@.",
-                         SLCountString([SLStore exerciseCountInWorkout:w], @"ćwiczenie", @"ćwiczenia", @"ćwiczeń"),
-                         SLCountString([SLStore doneSetsInWorkout:w], @"seria", @"serie", @"serii"),
+                         SLCountString([SLStore exerciseCountInWorkout:w], SLNounExercise),
+                         SLCountString([SLStore doneSetsInWorkout:w], SLNounSet),
                          SLWeightString([SLStore volumeOfWorkout:w])];
     [st finishActive];
     [self hideRest];
     [self refresh];
-    UIAlertView *a = [[UIAlertView alloc] initWithTitle:@"Trening zapisany" message:summary delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    UIAlertView *a = [[UIAlertView alloc] initWithTitle:GL(@"Trening zapisany") message:summary delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [a show];
     if (self.tabBarController) self.tabBarController.selectedIndex = 2;
 }
@@ -279,8 +288,8 @@
 {
     [self.view endEditing:YES];
     _pendingAction = 2;
-    UIActionSheet *s = [[UIActionSheet alloc] initWithTitle:@"Usunąć ten trening? Wpisane serie przepadną."
-                                                   delegate:self cancelButtonTitle:@"Wróć" destructiveButtonTitle:@"Usuń trening" otherButtonTitles:nil];
+    UIActionSheet *s = [[UIActionSheet alloc] initWithTitle:GL(@"Usunąć ten trening? Wpisane serie przepadną.")
+                                                   delegate:self cancelButtonTitle:GL(@"Wróć") destructiveButtonTitle:GL(@"Usuń trening") otherButtonTitles:nil];
     [s showFromTabBar:self.tabBarController.tabBar];
 }
 
@@ -309,7 +318,7 @@
     [self.view endEditing:YES];
     SLPickerController *p = [[SLPickerController alloc] init];
     p.delegate = self;
-    p.navigationItem.leftBarButtonItem = SLBarButton(@"Anuluj", self, @selector(closePicker));
+    p.navigationItem.leftBarButtonItem = SLBarButton(GL(@"Anuluj"), self, @selector(closePicker));
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:p];
     SLStyleNavigationBar(nav.navigationBar);
     [self presentViewController:nav animated:YES completion:nil];
@@ -358,8 +367,8 @@
     UIButton *x = [UIButton buttonWithType:UIButtonTypeCustom];
     x.frame = CGRectMake(268, 0, 52, 34);
     x.tag = s;
-    [x setTitle:@"Usuń" forState:UIControlStateNormal];
-    [x setTitleColor:SLSubtleColor() forState:UIControlStateNormal];
+    [x setTitle:GL(@"Usuń") forState:UIControlStateNormal];
+    [x setTitleColor:SLRGB(SLP()->hdrRight, 1) forState:UIControlStateNormal];
     x.titleLabel.font = [UIFont boldSystemFontOfSize:13];
     x.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
     [x addTarget:self action:@selector(removeEntry:) forControlEvents:UIControlEventTouchUpInside];
@@ -380,7 +389,7 @@
     NSArray *sets = [e objectForKey:@"sets"];
     if ((NSUInteger)ip.row == [sets count]) {
         SLCell *c = [SLCell cellForTable:t identifier:@"add"];
-        c.textLabel.text = @"+ Dodaj serię";
+        c.textLabel.text = GL(@"+ Dodaj serię");
         c.textLabel.textAlignment = NSTextAlignmentCenter;
         c.textLabel.textColor = SLAccentColor();
         c.textLabel.font = [UIFont boldSystemFontOfSize:15];
@@ -407,7 +416,7 @@
     c.unitLabel.text = SLUnitName();
     BOOL done = [[s objectForKey:@"done"] boolValue];
     [c setDone:done];
-    c.recordLabel.text = (done && [[s objectForKey:@"pr"] boolValue]) ? @"★ NOWY REKORD" : @"";
+    c.recordLabel.text = (done && [[s objectForKey:@"pr"] boolValue]) ? GL(@"★ NOWY REKORD") : @"";
     return c;
 }
 
@@ -512,8 +521,7 @@
 
 - (void)startRest:(NSInteger)seconds
 {
-    _restTotal = seconds;
-    _restEnd = [[NSDate date] timeIntervalSince1970] + seconds;
+    gRestEnd = [[NSDate date] timeIntervalSince1970] + seconds;
     [self scheduleRestNotification];
     [self showRest];
     [self tick];
@@ -523,17 +531,17 @@
 {
     [self cancelRestNotification];
     UILocalNotification *n = [[UILocalNotification alloc] init];
-    n.fireDate = [NSDate dateWithTimeIntervalSince1970:_restEnd];
-    n.alertBody = @"Koniec przerwy. Czas na kolejną serię!";
+    n.fireDate = [NSDate dateWithTimeIntervalSince1970:gRestEnd];
+    n.alertBody = GL(@"Koniec przerwy. Czas na kolejną serię!");
     n.soundName = UILocalNotificationDefaultSoundName;
     [[UIApplication sharedApplication] scheduleLocalNotification:n];
-    _restNote = n;
+    gRestNote = n;
 }
 
 - (void)cancelRestNotification
 {
-    if (_restNote) [[UIApplication sharedApplication] cancelLocalNotification:_restNote];
-    _restNote = nil;
+    if (gRestNote) [[UIApplication sharedApplication] cancelLocalNotification:gRestNote];
+    gRestNote = nil;
 }
 
 - (void)showRest
@@ -548,7 +556,7 @@
 
 - (void)hideRest
 {
-    _restEnd = 0;
+    gRestEnd = 0;
     [self cancelRestNotification];
     _restBar.hidden = YES;
     UIEdgeInsets in = _table.contentInset;
@@ -565,14 +573,14 @@
 
 - (void)restDidEndInBackground
 {
-    if (_restEnd > 0 && [[NSDate date] timeIntervalSince1970] >= _restEnd - 1) [self hideRest];
+    if (gRestEnd > 0 && [[NSDate date] timeIntervalSince1970] >= gRestEnd - 1) [self hideRest];
 }
 
 - (void)restButton:(UIButton *)b
 {
     if (b.tag == 2) { [self hideRest]; return; }
-    _restEnd += (b.tag == 0 ? -15 : 15);
-    if (_restEnd <= [[NSDate date] timeIntervalSince1970]) { [self hideRest]; return; }
+    gRestEnd += (b.tag == 0 ? -15 : 15);
+    if (gRestEnd <= [[NSDate date] timeIntervalSince1970]) { [self hideRest]; return; }
     [self scheduleRestNotification];
     [self tick];
 }

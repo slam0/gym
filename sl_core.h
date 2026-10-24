@@ -16,6 +16,9 @@ double sl_lb_to_kg(double lb);
 double sl_round2(double v);
 /* Polska odmiana: 0 = 1 (seria), 1 = 2-4 (serie), 2 = reszta (serii). */
 int sl_plural_pl(long n);
+/* Odmiana w trzech językach: lang 0 = polski, 1 = angielski, 2 = rosyjski.
+   Zwraca 0 = forma pojedyncza, 1 = "kilka" (pl 2-4, ru 2-4), 2 = reszta. Angielski: 0 albo 2. */
+int sl_plural(int lang, long n);
 /* Rozbija sekundy na godziny, minuty i sekundy. */
 void sl_split_seconds(long total, long *h, long *m, long *s);
 
