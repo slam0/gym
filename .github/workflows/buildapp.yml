@@ -1,4 +1,4 @@
-ame: Zbuduj aplikację
+name: Zbuduj aplikację
 
 # Uruchom ręcznie: zakładka "Actions" -> "Zbuduj aplikację" -> "Run workflow".
 # Po kilku minutach na dole strony przebiegu pojawi się plik silka-deb do pobrania.
