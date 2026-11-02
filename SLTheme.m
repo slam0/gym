@@ -109,6 +109,19 @@ static UIColor *DrawnLinen(void)         /* zapas: ciemny splot */
     return [UIColor colorWithPatternImage:img];
 }
 
+static UIColor *Darkened(UIColor *c, CGFloat amount)
+{
+    CGFloat side = 128.0f;
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(side, side), YES, 0.0f);
+    [c setFill];
+    UIRectFill(CGRectMake(0, 0, side, side));
+    [[UIColor colorWithWhite:0.0f alpha:amount] setFill];
+    UIRectFill(CGRectMake(0, 0, side, side));
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img ? [UIColor colorWithPatternImage:img] : c;
+}
+
 /* tło: systemowe tło list grupowanych albo systemowy len (scrollViewTexturedBackgroundColor) */
 UIColor *SLBackgroundColor(void)
 {
@@ -117,6 +130,7 @@ UIColor *SLBackgroundColor(void)
     if (!cache[linen]) {
         UIColor *c = linen ? [UIColor scrollViewTexturedBackgroundColor] : [UIColor groupTableViewBackgroundColor];
         if (!ColorDraws(c)) c = linen ? DrawnLinen() : DrawnStripes();
+        c = Darkened(c, linen ? 0.5f : 0.58f);     /* ciemne tło we wszystkich motywach: systemowy wzór przyciemniony czernią */
         cache[linen] = c;
     }
     return cache[linen];
@@ -124,21 +138,15 @@ UIColor *SLBackgroundColor(void)
 
 UIColor *SLSubtleColor(void)
 {
-    if (SLThemeIsLinen()) return [UIColor colorWithWhite:0.92f alpha:1.0f];
-    return [UIColor colorWithRed:0.298f green:0.337f blue:0.424f alpha:1.0f];
+    return [UIColor colorWithWhite:0.92f alpha:1.0f];        /* tło jest ciemne w każdym motywie, więc napisy na nim są jasne */
 }
 UIColor *SLAccentColor(void)     { return RGB(kThemes[SLCurrentTheme()].accent); }
 UIColor *SLDangerColor(void)     { return [UIColor colorWithRed:0.75f green:0.05f blue:0.05f alpha:1.0f]; }
 
 void SLStyleShadow(UILabel *l)
 {
-    if (SLThemeIsLinen()) {
-        l.shadowColor = [UIColor colorWithWhite:0.0f alpha:0.8f];
-        l.shadowOffset = CGSizeMake(0, -1);
-    } else {
-        l.shadowColor = [UIColor whiteColor];
-        l.shadowOffset = CGSizeMake(0, 1);
-    }
+    l.shadowColor = [UIColor colorWithWhite:0.0f alpha:0.8f];
+    l.shadowOffset = CGSizeMake(0, -1);
 }
 
 /* ---------- paski: standardowe, tylko z kolorem motywu ---------- */

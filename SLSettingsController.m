@@ -83,7 +83,7 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
 
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s
 {
-    return s == 3 ? 4 : 2;
+    return s == 3 ? 5 : 2;
 }
 
 - (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 34; }
@@ -164,10 +164,16 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
             c.textLabel.textColor = SLDangerColor();
         }
     } else {
-        if (ip.row < 2) {
+        if (ip.row < 2 || ip.row == 4) {
             c = [self cellWithStyle:UITableViewCellStyleValue1 identifier:@"v1" table:t];
             c.selectionStyle = UITableViewCellSelectionStyleNone;
-            if (ip.row == 0) {
+            if (ip.row == 4) {
+                /* ile zdjęć ćwiczeń jest w aplikacji: 0 oznacza, że folder Resources/ex nie trafił do repozytorium */
+                NSString *dir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ex"];
+                NSUInteger n = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:NULL] count];
+                c.textLabel.text = GL(@"Zdjęcia ćwiczeń");
+                c.detailTextLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)n];
+            } else if (ip.row == 0) {
                 c.textLabel.text = GL(@"Wersja");
                 c.detailTextLabel.text = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
             } else {
