@@ -2,58 +2,7 @@
 #import "SLTheme.h"
 #import "SLLang.h"
 
-static UIColor *C(int r, int g, int b, CGFloat a)
-{
-    return [UIColor colorWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a];
-}
-
-static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
-{
-    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-    NSArray *cols = [NSArray arrayWithObjects:(__bridge id)top.CGColor, (__bridge id)bottom.CGColor, nil];
-    CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cols, NULL);
-    CGContextSaveGState(c);
-    CGContextClipToRect(c, r);
-    CGContextDrawLinearGradient(c, g, CGPointMake(0, r.origin.y), CGPointMake(0, r.origin.y + r.size.height), 0);
-    CGContextRestoreGState(c);
-    CGGradientRelease(g);
-    CGColorSpaceRelease(cs);
-}
-
-/* ---------- tło komórki ---------- */
-
-@interface SLGlossBackground : UIView
-@property (nonatomic) BOOL selected;
-@end
-
-@implementation SLGlossBackground
-- (id)initWithFrame:(CGRect)f
-{
-    if ((self = [super initWithFrame:f])) {
-        self.opaque = YES;
-        self.contentMode = UIViewContentModeRedraw;
-    }
-    return self;
-}
-- (void)drawRect:(CGRect)rect
-{
-    CGContextRef c = UIGraphicsGetCurrentContext();
-    CGRect b = self.bounds;
-    CGFloat half = (CGFloat)((int)(b.size.height / 2.0f));
-    const SLPalette *p = SLP();
-    if (_selected) {
-        Gradient(c, CGRectMake(0, 0, b.size.width, half), SLRGB(p->selT1, 1), SLRGB(p->selT2, 1));
-        Gradient(c, CGRectMake(0, half, b.size.width, b.size.height - half), SLRGB(p->selB1, 1), SLRGB(p->selB2, 1));
-    } else {
-        Gradient(c, CGRectMake(0, 0, b.size.width, half), SLRGB(p->cellT1, 1), SLRGB(p->cellT2, 1));
-        Gradient(c, CGRectMake(0, half, b.size.width, b.size.height - half), SLRGB(p->cellB1, 1), SLRGB(p->cellB2, 1));
-    }
-    [C(255, 255, 255, p->cellHiAlpha) setFill];
-    CGContextFillRect(c, CGRectMake(0, 0, b.size.width, 1));
-    [C(0, 0, 0, p->cellLoAlpha) setFill];
-    CGContextFillRect(c, CGRectMake(0, b.size.height - 1, b.size.width, 1));
-}
-@end
+/* ---------- komórka ---------- */
 
 @implementation SLCell
 
@@ -64,65 +13,42 @@ static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
     return cell;
 }
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuse
-{
-    if ((self = [super initWithStyle:style reuseIdentifier:reuse])) {
-        self.backgroundView = [[SLGlossBackground alloc] initWithFrame:self.bounds];
-        SLGlossBackground *sel = [[SLGlossBackground alloc] initWithFrame:self.bounds];
-        sel.selected = YES;
-        self.selectedBackgroundView = sel;
-        self.textLabel.textColor = SLTextColor();
-        SLStyleShadow(self.textLabel);
-        self.textLabel.font = [UIFont boldSystemFontOfSize:17.0f];
-        self.textLabel.backgroundColor = [UIColor clearColor];
-        self.detailTextLabel.textColor = SLSubtleColor();
-        self.detailTextLabel.font = [UIFont systemFontOfSize:13.0f];
-        self.detailTextLabel.backgroundColor = [UIColor clearColor];
-    }
-    return self;
-}
 @end
 
 /* ---------- nagłówek sekcji ---------- */
 
-@interface SLSectionHeader ()
-{
-    NSString *_title, *_right;
-}
-@end
-
 @implementation SLSectionHeader
+
+- (UILabel *)makeLabel:(CGRect)f bold:(BOOL)bold
+{
+    UILabel *l = [[UILabel alloc] initWithFrame:f];
+    l.backgroundColor = [UIColor clearColor];
+    l.textColor = SLSubtleColor();
+    l.font = bold ? [UIFont boldSystemFontOfSize:17.0f] : [UIFont systemFontOfSize:15.0f];
+    SLStyleShadow(l);
+    [self addSubview:l];
+    return l;
+}
+
 - (id)initWithTitle:(NSString *)title right:(NSString *)right
 {
-    if ((self = [super initWithFrame:CGRectMake(0, 0, 320, 26)])) {
-        _title = [title copy];
-        _right = [right copy];
-        self.opaque = NO;
+    if ((self = [super initWithFrame:CGRectMake(0, 0, 320, 34)])) {
         self.backgroundColor = [UIColor clearColor];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        self.contentMode = UIViewContentModeRedraw;
+        BOOL hasRight = [right length] > 0;
+        _titleLabel = [self makeLabel:CGRectMake(20, 8, hasRight ? 150 : 280, 22) bold:YES];
+        _titleLabel.text = title;
+        _titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        _rightLabel = [self makeLabel:CGRectMake(172, 8, 128, 22) bold:NO];
+        _rightLabel.textAlignment = NSTextAlignmentRight;
+        _rightLabel.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
+        _rightLabel.adjustsFontSizeToFitWidth = YES;
+        _rightLabel.minimumScaleFactor = 0.7f;
+        _rightLabel.text = right;
     }
     return self;
 }
-- (void)drawRect:(CGRect)rect
-{
-    CGContextRef c = UIGraphicsGetCurrentContext();
-    CGRect b = self.bounds;
-    const SLPalette *p = SLP();
-    Gradient(c, b, SLRGB(p->hdrT, 0.97f), SLRGB(p->hdrB, 0.97f));
-    [C(255, 255, 255, p->light ? 0.35f : 0.10f) setFill];
-    CGContextFillRect(c, CGRectMake(0, 0, b.size.width, 1));
-    [C(0, 0, 0, 0.8f) setFill];
-    CGContextFillRect(c, CGRectMake(0, b.size.height - 1, b.size.width, 1));
-    UIFont *f = [UIFont boldSystemFontOfSize:13.0f];
-    CGContextSetShadowWithColor(c, CGSizeMake(0, -1), 0, C(0, 0, 0, p->light ? 0.45f : 0.9f).CGColor);
-    [SLRGB(p->hdrTitle, 1) set];
-    [_title drawInRect:CGRectMake(12, 5, b.size.width - 100, 18) withFont:f lineBreakMode:NSLineBreakByTruncatingTail];
-    if ([_right length]) {
-        [SLRGB(p->hdrRight, 1) set];
-        [_right drawInRect:CGRectMake(b.size.width - 160, 5, 148, 18) withFont:f lineBreakMode:NSLineBreakByTruncatingTail alignment:NSTextAlignmentRight];
-    }
-}
+
 @end
 
 UIView *SLHeaderForTitle(NSString *title, NSString *right)
@@ -134,77 +60,25 @@ UIView *SLHeaderForTitle(NSString *title, NSString *right)
 
 UIToolbar *SLKeyboardToolbar(id target, SEL doneAction)
 {
-    UIToolbar *tb = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 38)];
-    tb.barStyle = UIBarStyleBlack;
-    tb.translucent = YES;
+    UIToolbar *tb = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    tb.barStyle = UIBarStyleBlackTranslucent;
     UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithTitle:GL(@"Gotowe") style:UIBarButtonItemStyleDone target:target action:doneAction];
+    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:target action:doneAction];
     tb.items = [NSArray arrayWithObjects:flex, done, nil];
     return tb;
 }
 
-UIImage *SLCheckImage(BOOL on)
-{
-    CGFloat s = 26.0f;
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(s, s), NO, 0.0f);
-    UIBezierPath *p = [UIBezierPath bezierPath];
-    [p moveToPoint:CGPointMake(5, 14)];
-    [p addLineToPoint:CGPointMake(10.5f, 19.5f)];
-    [p addLineToPoint:CGPointMake(21, 7)];
-    p.lineWidth = 4.0f;
-    p.lineCapStyle = kCGLineCapRound;
-    p.lineJoinStyle = kCGLineJoinRound;
-    CGContextRef c = UIGraphicsGetCurrentContext();
-    if (on) {
-        CGContextSetShadowWithColor(c, CGSizeMake(0, -1), 0, C(0, 0, 0, 0.6f).CGColor);
-        [[UIColor whiteColor] setStroke];
-    } else {
-        [SLSubtleColor() setStroke];
-    }
-    [p stroke];
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return img;
-}
-
 /* ---------- komórka serii ---------- */
-
-static UIImage *SLFieldImage(void)
-{
-    static UIImage *img;
-    static NSInteger forTheme = -1;
-    if (img && forTheme == SLCurrentTheme()) return img;
-    forTheme = SLCurrentTheme();
-    const SLPalette *p = SLP();
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(20, 34), NO, 0.0f);
-    CGContextRef c = UIGraphicsGetCurrentContext();
-    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0.5f, 0.5f, 19, 32) cornerRadius:7];
-    CGContextSaveGState(c);
-    [path addClip];
-    Gradient(c, CGRectMake(0, 0, 20, 34), SLRGB(p->fieldT, 1), SLRGB(p->fieldB, 1));
-    CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
-    [path stroke];
-    [C(255, 255, 255, p->light ? 0.8f : 0.12f) setFill];
-    CGContextFillRect(c, CGRectMake(5, 33, 10, 1));
-    UIImage *raw = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    img = [raw resizableImageWithCapInsets:UIEdgeInsetsMake(10, 8, 10, 8)];
-    return img;
-}
 
 @implementation SLSetCell
 
 - (UITextField *)makeField:(CGRect)frame
 {
     UITextField *f = [[UITextField alloc] initWithFrame:frame];
-    f.background = SLFieldImage();
-    f.textColor = SLRGB(SLP()->fieldText, 1);
-    f.font = [UIFont boldSystemFontOfSize:18.0f];
+    f.borderStyle = UITextBorderStyleRoundedRect;
+    f.font = [UIFont systemFontOfSize:17.0f];
     f.textAlignment = NSTextAlignmentCenter;
-    f.borderStyle = UITextBorderStyleNone;
     f.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-    f.keyboardAppearance = UIKeyboardAppearanceAlert;
     f.clearButtonMode = UITextFieldViewModeNever;
     f.autocorrectionType = UITextAutocorrectionTypeNo;
     return f;
@@ -217,7 +91,6 @@ static UIImage *SLFieldImage(void)
     l.textColor = color;
     l.font = bold ? [UIFont boldSystemFontOfSize:size] : [UIFont systemFontOfSize:size];
     l.textAlignment = a;
-    SLStyleShadow(l);
     [self.contentView addSubview:l];
     return l;
 }
@@ -226,76 +99,29 @@ static UIImage *SLFieldImage(void)
 {
     if ((self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuse])) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        self.backgroundView = [[SLGlossBackground alloc] initWithFrame:self.bounds];
-        self.numLabel = [self makeLabel:CGRectMake(6, 14, 28, 22) size:16 bold:YES color:SLSubtleColor() align:NSTextAlignmentCenter];
-        self.kgField = [self makeField:CGRectMake(38, 8, 74, 34)];
+        UIColor *gray = [UIColor grayColor];
+        /* szerokość contentView po odjęciu przełącznika to ok. 210 pt */
+        self.numLabel = [self makeLabel:CGRectMake(2, 12, 20, 22) size:16 bold:YES color:gray align:NSTextAlignmentCenter];
+        self.kgField = [self makeField:CGRectMake(24, 6, 64, 31)];
         self.kgField.keyboardType = UIKeyboardTypeDecimalPad;
         [self.contentView addSubview:self.kgField];
-        self.unitLabel = [self makeLabel:CGRectMake(114, 14, 26, 22) size:13 bold:NO color:SLSubtleColor() align:NSTextAlignmentLeft];
-        self.repsField = [self makeField:CGRectMake(142, 8, 62, 34)];
+        self.unitLabel = [self makeLabel:CGRectMake(90, 12, 22, 22) size:13 bold:NO color:gray align:NSTextAlignmentLeft];
+        self.repsField = [self makeField:CGRectMake(114, 6, 46, 31)];
         self.repsField.keyboardType = UIKeyboardTypeNumberPad;
         [self.contentView addSubview:self.repsField];
-        self.repsLabel = [self makeLabel:CGRectMake(206, 14, 44, 22) size:13 bold:NO color:SLSubtleColor() align:NSTextAlignmentLeft];
+        self.repsLabel = [self makeLabel:CGRectMake(162, 12, 46, 22) size:12 bold:NO color:gray align:NSTextAlignmentLeft];
         self.repsLabel.text = GL(@"powt.");
-        self.recordLabel = [self makeLabel:CGRectMake(38, 41, 200, 10) size:10 bold:YES color:SLAccentColor() align:NSTextAlignmentLeft];
-        self.doneButton = SLGelButton(@"", 1, CGRectMake(262, 7, 48, 36));
-        [self.contentView addSubview:self.doneButton];
+        self.recordLabel = [self makeLabel:CGRectMake(24, 39, 190, 12) size:10 bold:YES color:SLAccentColor() align:NSTextAlignmentLeft];
+        _doneSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+        self.accessoryView = _doneSwitch;
     }
     return self;
 }
 
 - (void)setDone:(BOOL)done
 {
-    [self.doneButton setBackgroundImage:SLGelImage(done ? 3 : 1) forState:UIControlStateNormal];
-    [self.doneButton setImage:SLCheckImage(done) forState:UIControlStateNormal];
-    self.kgField.alpha = self.repsField.alpha = done ? 0.75f : 1.0f;
-}
-
-@end
-
-/* ---------- kafelek statystyki ---------- */
-
-@implementation SLStatView
-
-- (id)initWithFrame:(CGRect)f
-{
-    if ((self = [super initWithFrame:f])) {
-        self.backgroundColor = [UIColor clearColor];
-        self.contentMode = UIViewContentModeRedraw;
-    }
-    return self;
-}
-
-- (void)setValue:(NSString *)v { _value = [v copy]; [self setNeedsDisplay]; }
-- (void)setCaption:(NSString *)v { _caption = [v copy]; [self setNeedsDisplay]; }
-
-- (void)drawRect:(CGRect)rect
-{
-    CGContextRef c = UIGraphicsGetCurrentContext();
-    CGRect b = CGRectInset(self.bounds, 0.5f, 0.5f);
-    UIBezierPath *shape = [UIBezierPath bezierPathWithRoundedRect:b cornerRadius:10];
-    CGContextSaveGState(c);
-    [shape addClip];
-    const SLPalette *p = SLP();
-    Gradient(c, self.bounds, SLRGB(p->tileT, 1), SLRGB(p->tileB, 1));
-    /* odbicie: szklany połysk na górnej połowie */
-    Gradient(c, CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * 0.5f), C(255, 255, 255, p->light ? 0.55f : 0.22f), C(255, 255, 255, p->light ? 0.10f : 0.04f));
-    CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.45f : 0.9f) setStroke];
-    [shape stroke];
-    [C(255, 255, 255, 0.16f) setFill];
-    CGContextFillRect(c, CGRectMake(8, 1, self.bounds.size.width - 16, 1));
-
-    CGFloat w = self.bounds.size.width;
-    CGContextSetShadowWithColor(c, CGSizeMake(0, p->shadowDY), 0, SLRGB(p->shadow, p->light ? 0.9f : 0.9f).CGColor);
-    [SLRGB(p->tileText, 1) set];
-    CGFloat size = 24.0f;
-    UIFont *vf = [UIFont boldSystemFontOfSize:size];
-    /* zmniejsz czcionkę, jeśli wartość się nie mieści */
-    while (size > 12.0f && [_value sizeWithFont:vf].width > w - 10) { size -= 1.0f; vf = [UIFont boldSystemFontOfSize:size]; }
-    [_value drawInRect:CGRectMake(4, 16, w - 8, 30) withFont:vf lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
-    [SLAccentColor() set];
-    [[_caption uppercaseString] drawInRect:CGRectMake(2, 54, w - 4, 16) withFont:[UIFont boldSystemFontOfSize:11] lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
+    [self.doneSwitch setOn:done animated:NO];
+    self.kgField.alpha = self.repsField.alpha = done ? 0.6f : 1.0f;
 }
 
 @end
@@ -316,22 +142,20 @@ static UIImage *SLFieldImage(void)
 - (void)drawRect:(CGRect)rect
 {
     CGContextRef c = UIGraphicsGetCurrentContext();
-    CGRect b = CGRectInset(self.bounds, 0, 0);
-    /* panel */
-    UIBezierPath *panel = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.5f, 0.5f) cornerRadius:8];
-    CGContextSaveGState(c);
-    [panel addClip];
-    const SLPalette *p = SLP();
-    Gradient(c, b, SLRGB(p->panelT, 1), SLRGB(p->panelB, 1));
-    CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
+    CGRect b = self.bounds;
+    /* panel wygląda jak komórka listy grupowanej: biały, zaokrąglony, z szarą ramką */
+    UIBezierPath *panel = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.5f, 0.5f) cornerRadius:10];
+    [[UIColor whiteColor] setFill];
+    [panel fill];
+    [[UIColor colorWithWhite:0.68f alpha:1.0f] setStroke];
     [panel stroke];
 
     NSArray *vals = self.values;
-    CGFloat left = 40, right = 12, top = 14, bottom = 28;
+    CGFloat left = 40, right = 14, top = 14, bottom = 28;
     CGRect plot = CGRectMake(left, top, b.size.width - left - right, b.size.height - top - bottom);
+    UIColor *gray = [UIColor grayColor];
     if ([vals count] == 0) {
-        [SLSubtleColor() set];
+        [gray set];
         [GL(@"Brak danych") drawInRect:CGRectMake(0, b.size.height / 2 - 9, b.size.width, 18) withFont:[UIFont systemFontOfSize:14] lineBreakMode:NSLineBreakByTruncatingTail alignment:NSTextAlignmentCenter];
         return;
     }
@@ -346,10 +170,10 @@ static UIImage *SLFieldImage(void)
     UIFont *small = [UIFont systemFontOfSize:10];
     for (int i = 0; i < 4; i++) {
         CGFloat y = plot.origin.y + plot.size.height * i / 3.0f;
-        [SLRGB(p->grid, p->gridAlpha) setFill];
+        [[UIColor colorWithWhite:0.0f alpha:0.12f] setFill];
         CGContextFillRect(c, CGRectMake(plot.origin.x, (CGFloat)((int)y), plot.size.width, 1));
         double v = hi - (hi - lo) * i / 3.0;
-        [SLSubtleColor() set];
+        [gray set];
         [SLNumberString(v) drawInRect:CGRectMake(2, y - 6, left - 6, 12) withFont:small lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentRight];
     }
     NSUInteger n = [vals count];
@@ -363,14 +187,13 @@ static UIImage *SLFieldImage(void)
         [pts addObject:[NSValue valueWithCGPoint:p]];
         if (i == 0) [line moveToPoint:p]; else [line addLineToPoint:p];
     }
-    /* wypełnienie pod linią */
     if (n > 1) {
         UIBezierPath *area = [UIBezierPath bezierPathWithCGPath:line.CGPath];
         CGPoint last = [[pts lastObject] CGPointValue], first = [[pts objectAtIndex:0] CGPointValue];
         [area addLineToPoint:CGPointMake(last.x, plot.origin.y + plot.size.height)];
         [area addLineToPoint:CGPointMake(first.x, plot.origin.y + plot.size.height)];
         [area closePath];
-        [SLRGB(p->accent, 0.18f) setFill];
+        [[SLAccentColor() colorWithAlphaComponent:0.16f] setFill];
         [area fill];
     }
     line.lineWidth = 2.5f;
@@ -385,10 +208,46 @@ static UIImage *SLFieldImage(void)
         [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(p.x - 2.0f, p.y - 2.0f, 4, 4)] fill];
     }
     /* opisy osi X */
-    [SLSubtleColor() set];
+    [gray set];
     NSArray *lb = self.labels;
     if ([lb count] >= 1) [[lb objectAtIndex:0] drawInRect:CGRectMake(plot.origin.x - 20, b.size.height - 20, 110, 14) withFont:small lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentLeft];
     if ([lb count] >= 2) [[lb objectAtIndex:1] drawInRect:CGRectMake(b.size.width - right - 110, b.size.height - 20, 110 + 8, 14) withFont:small lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentRight];
 }
 
 @end
+
+
+/* ---------- zdjęcia ćwiczeń ---------- */
+
+UIImage *SLExercisePhoto(NSString *exerciseId, int frame)
+{
+    static NSCache *cache = nil;
+    if (![exerciseId length]) return nil;
+    if (!cache) { cache = [[NSCache alloc] init]; [cache setCountLimit:160]; }
+    NSString *key = [exerciseId stringByReplacingOccurrencesOfString:@":" withString:@"_"];
+    NSString *name = frame < 0 ? [key stringByAppendingString:@"_t"] : [NSString stringWithFormat:@"%@_%d", key, frame];
+    id hit = [cache objectForKey:name];
+    if (hit) return [hit isKindOfClass:[UIImage class]] ? hit : nil;
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"jpg" inDirectory:@"ex"];
+    UIImage *img = path ? [UIImage imageWithContentsOfFile:path] : nil;
+    if (img && frame < 0 && [img respondsToSelector:@selector(CGImage)])
+        img = [UIImage imageWithCGImage:img.CGImage scale:2.0f orientation:UIImageOrientationUp];     /* 120x80 px = 60x40 pt */
+    [cache setObject:(img ? (id)img : (id)[NSNull null]) forKey:name];
+    return img;
+}
+
+UIImage *SLExerciseThumb(NSString *exerciseId)
+{
+    static UIImage *blank = nil;
+    UIImage *img = SLExercisePhoto(exerciseId, -1);
+    if (img) return img;
+    if (!blank) {
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(60, 40), NO, 0);
+        CGContextRef c = UIGraphicsGetCurrentContext();
+        [[UIColor colorWithWhite:0.5f alpha:0.18f] setFill];
+        CGContextFillRect(c, CGRectMake(0, 0, 60, 40));
+        blank = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    return blank;
+}

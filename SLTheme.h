@@ -1,53 +1,32 @@
 #import <UIKit/UIKit.h>
 
-/* Wygląd w stylu iOS 6 ("grafit z połyskiem") z kilkoma motywami kolorystycznymi
-   oraz drobne funkcje pomocnicze do formatowania liczb, dat i jednostek. */
-
-/* ---- paleta bieżącego motywu ---- */
-typedef struct {
-    int accent[3], accentGelT[3], accentGelB[3], accentGelBorder[3];
-    int bg[3], bgHi[3], bgLo[3];
-    int barT1[3], barT2[3], barB1[3], barB2[3], barTint[3];
-    int cellT1[3], cellT2[3], cellB1[3], cellB2[3];
-    int selT1[3], selT2[3], selB1[3], selB2[3];
-    int text[3], subtle[3], tabOff[3], tabOn[3];
-    int hdrT[3], hdrB[3], hdrTitle[3], hdrRight[3];
-    int fieldT[3], fieldB[3], fieldText[3];
-    int tileT[3], tileB[3], tileText[3];
-    int panelT[3], panelB[3], grid[3];
-    int sep[3], neutT[3], neutB[3], neutBorder[3];
-    int shadow[3], chrome[3], danger[3];
-    float gridAlpha, shadowAlpha, shadowDY, cellHiAlpha, cellLoAlpha;
-    int light;
-} SLPalette;
-
-const SLPalette *SLP(void);
-UIColor *SLRGB(const int *rgb, CGFloat alpha);
+/* Wygląd: standardowy UIKit z iOS 6 (paski, listy grupowane, kontrolki systemowe).
+   Motyw to tylko kolor pasków (tintColor) oraz kolor akcentu w tekstach i na wykresie.
+   Poniżej też drobne funkcje pomocnicze do formatowania liczb, dat i jednostek. */
 
 /* ---- motywy ---- */
 NSInteger SLThemeCount(void);
 NSInteger SLCurrentTheme(void);
 void SLSetTheme(NSInteger index);               /* zapisuje i ogłasza SLAppearanceDidChangeNotification */
 NSString *SLThemeName(NSInteger index);         /* przetłumaczona nazwa */
-UIImage *SLThemeSwatch(NSInteger index);        /* mała błyszcząca próbka koloru */
+UIImage *SLThemeSwatch(NSInteger index);        /* mała próbka koloru paska */
 
-UIColor *SLBackgroundColor(void);       /* teksturowane tło tabel */
-UIColor *SLTextColor(void);
-UIColor *SLSubtleColor(void);
-UIColor *SLAccentColor(void);
-UIColor *SLGreenColor(void);
-void SLStyleShadow(UILabel *label);     /* cień tekstu pasujący do motywu */
+UIColor *SLBackgroundColor(void);       /* systemowe tło list grupowanych (groupTableViewBackgroundColor) */
+UIColor *SLSubtleColor(void);           /* szary tekst na tle list grupowanych (jak nagłówki w Ustawieniach) */
+UIColor *SLAccentColor(void);           /* kolor akcentu bieżącego motywu */
+UIColor *SLDangerColor(void);
+void SLStyleShadow(UILabel *label);     /* biały cień pod tekstem na tle list grupowanych */
 
-void SLStyleNavigationBar(UINavigationBar *bar);
+void SLStyleNavigationBar(UINavigationBar *bar);   /* tylko tintColor motywu; reszta to standard iOS */
 void SLStyleTabBar(UITabBar *bar);
-void SLStyleTabItem(UITabBarItem *item, int kind);   /* 0 trening, 1 historia, 2 ćwiczenia, 3 ustawienia, 4 główna */
+void SLStyleToolbar(UIToolbar *bar);
 void SLStyleSearchBar(UISearchBar *bar);
-UIImage *SLTabIcon(int kind);
-void SLStyleTable(UITableView *table);
+void SLStyleSegmented(UISegmentedControl *sc);     /* kolor motywu na stałej kontrolce segmentowej */
+void SLStyleTable(UITableView *table);             /* lista grupowana: systemowe tło */
+UIImage *SLTabIcon(int kind);           /* maska dla UITabBarItem: 0 trening, 1 historia, 2 ćwiczenia, 3 ustawienia, 4 główna */
 
-/* styl: 0 kolor motywu, 1 neutralny, 2 czerwony, 3 zielony */
-UIImage *SLGelImage(int style);
-UIButton *SLGelButton(NSString *title, int style, CGRect frame);
+/* styl: 0 zwykły, 2 czerwony (usuń) */
+UIButton *SLButton(NSString *title, int style, CGRect frame);   /* standardowy przycisk UIButtonTypeRoundedRect */
 UIBarButtonItem *SLBarButton(NSString *title, id target, SEL action);
 
 /* formatowanie */
