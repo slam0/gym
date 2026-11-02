@@ -56,6 +56,31 @@ UIView *SLHeaderForTitle(NSString *title, NSString *right)
     return [[SLSectionHeader alloc] initWithTitle:title right:right];
 }
 
+UIView *SLFooterForText(NSString *text)
+{
+    CGFloat h = SLFooterHeight(text);
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, h)];
+    v.backgroundColor = [UIColor clearColor];
+    UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(20, 6, 280, h - 6)];
+    l.backgroundColor = [UIColor clearColor];
+    l.textColor = SLSubtleColor();
+    l.font = [UIFont systemFontOfSize:14.0f];
+    l.textAlignment = NSTextAlignmentCenter;
+    l.numberOfLines = 0;
+    l.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    SLStyleShadow(l);
+    l.text = text;
+    [v addSubview:l];
+    return v;
+}
+
+CGFloat SLFooterHeight(NSString *text)
+{
+    if (![text length]) return 12.0f;
+    CGSize sz = [text sizeWithFont:[UIFont systemFontOfSize:14.0f] constrainedToSize:CGSizeMake(280, 400) lineBreakMode:NSLineBreakByWordWrapping];
+    return sz.height + 16.0f;
+}
+
 /* ---------- klawiatura ---------- */
 
 UIToolbar *SLKeyboardToolbar(id target, SEL doneAction)

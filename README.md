@@ -16,7 +16,7 @@ Wygląd: standardowy UIKit z iOS 6 (zwykłe paski, listy grupowane jak w Ustawie
   na listach jako miniatura, a w trakcie treningu przyciskiem **Podgląd** przy nazwie ćwiczenia. Własne ćwiczenia nie mają zdjęć.
 * **Ćwiczenia** – ok. 110 popularnych ćwiczeń po polsku, angielsku i rosyjsku (wyszukiwarka działa po nazwach we wszystkich językach, partii mięśni i sprzęcie),
   własne ćwiczenia, statystyki i wykres szacowanego 1RM dla każdego.
-* **Ustawienia** – **język** (automatycznie wg telefonu / polski / English / Русский), **kolor pasków** (Błękit – domyślny pasek iOS 6, Grafit, Czerwień, Zieleń, Fiolet, Srebro),
+* **Ustawienia** – **język** (automatycznie wg telefonu / polski / English / Русский), **kolor pasków** (Błękit – domyślny pasek iOS 6, Grafit, Czerwień, Zieleń, Fiolet, Srebro oraz **Len** – systemowy ciemny len w tle),
   kg/lb (przełącznik kg | lb), długość przerwy (lista wyboru), usunięcie danych. Język i motyw zmieniają się od razu, bez restartu; trwający trening i stoper przerwy zostają.
 
 Dane są tylko w telefonie: `Documents/silka.json` (widoczne w iTunes → Udostępnianie plików, można zrobić kopię).

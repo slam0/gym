@@ -27,6 +27,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.view.backgroundColor = SLBackgroundColor();
     _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
     _table.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _table.dataSource = self;
@@ -78,14 +79,18 @@
     return s == 0 ? 3 : (_canRepeat ? 2 : 1);
 }
 
-- (NSString *)tableView:(UITableView *)t titleForHeaderInSection:(NSInteger)s
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return s == 0 ? 34 : 8; }
+
+- (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
-    return s == 0 ? GL(@"Twoje treningi w liczbach") : nil;
+    return s == 0 ? SLHeaderForTitle(GL(@"Twoje treningi w liczbach"), nil) : nil;
 }
 
-- (NSString *)tableView:(UITableView *)t titleForFooterInSection:(NSInteger)s
+- (CGFloat)tableView:(UITableView *)t heightForFooterInSection:(NSInteger)s { return SLFooterHeight(s == 0 ? _statsFooter : _lastFooter); }
+
+- (UIView *)tableView:(UITableView *)t viewForFooterInSection:(NSInteger)s
 {
-    return s == 0 ? _statsFooter : _lastFooter;
+    return SLFooterForText(s == 0 ? _statsFooter : _lastFooter);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip

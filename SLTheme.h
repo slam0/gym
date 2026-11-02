@@ -11,7 +11,8 @@ void SLSetTheme(NSInteger index);               /* zapisuje i ogłasza SLAppeara
 NSString *SLThemeName(NSInteger index);         /* przetłumaczona nazwa */
 UIImage *SLThemeSwatch(NSInteger index);        /* mała próbka koloru paska */
 
-UIColor *SLBackgroundColor(void);       /* systemowe tło list grupowanych (groupTableViewBackgroundColor) */
+BOOL SLThemeIsLinen(void);
+UIColor *SLBackgroundColor(void);       /* systemowe tło list grupowanych albo systemowy len (motyw "Len") */
 UIColor *SLSubtleColor(void);           /* szary tekst na tle list grupowanych (jak nagłówki w Ustawieniach) */
 UIColor *SLAccentColor(void);           /* kolor akcentu bieżącego motywu */
 UIColor *SLDangerColor(void);

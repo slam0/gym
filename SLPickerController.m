@@ -15,6 +15,7 @@
 {
     [super viewDidLoad];
     self.title = GL(@"Partia mięśni");
+    SLStyleTable(self.tableView);
 }
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[SLStore shared] muscleGroups] count]; }
 - (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip

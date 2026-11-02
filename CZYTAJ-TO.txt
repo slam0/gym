@@ -1,16 +1,11 @@
-Gym 1.3.0 - wygląd na standardowym UIKit z iOS 6
+Gym 1.3.1 - tło i motyw Len
 
-Co się zmieniło:
-- paski, listy grupowane (jak w Ustawieniach), przełączniki, przyciski, pola liczb, lista wyboru: wszystko to zwykłe kontrolki systemowe
-- seria w treningu: przełącznik "zrobione" po prawej zamiast ptaszka
-- Ustawienia: kg | lb jako przełącznik, przerwa i motyw jako listy wyboru z ptaszkiem
-- motyw to teraz tylko kolor pasków; domyślny "Błękit" to czysty pasek iOS 6 (zapisany wcześniej motyw może się zmienić)
-- Główna: lista grupowana z liczbami i przyciskami
+Zmiany:
+- nowy motyw "Len" (Ustawienia -> Motyw): systemowy ciemny len w tle (scrollViewTexturedBackgroundColor z iOS 6), grafitowe paski, jasne napisy na tle
+- tło jest teraz sprawdzane przy starcie: gdyby system zwrócił czarne albo puste tło, aplikacja użyje zapasowego wzoru (prążki albo ciemny splot) zamiast czerni
+- nagłówki i stopki sekcji (Główna, Ustawienia) dopasowują kolor do tła, więc na lnie są czytelne
 
-Jak wgrać:
-1. Rozpakuj zip i wgraj pliki do repozytorium Silka na GitHubie, zastępując stare (folder Resources/Info.plist też).
-2. Actions -> Zbuduj aplikację -> Run workflow (nie Re-run).
-3. Zainstaluj nowy .deb albo .ipa.
+Jak wgrać: te same kroki co przy 1.3.0 - wgraj pliki do repozytorium Silka (z zachowaniem folderu Resources), Actions -> Run workflow, zainstaluj nowy .deb.
 
-Uwaga: aplikacja nie była uruchamiana na prawdziwym telefonie, tylko sprawdzona kompilacją.
-Jeśli coś wygląda źle (rozjechany układ, ucięte napisy), wyślij zrzut ekranu.
+Aplikacja nie była uruchamiana na prawdziwym telefonie, tylko sprawdzona kompilacją.
+Jeśli tło nadal jest czarne, wyślij zrzut ekranu i napisz, na którym ekranie i jaki masz iOS.

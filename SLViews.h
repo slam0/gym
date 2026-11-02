@@ -15,6 +15,9 @@
 @end
 
 UIView *SLHeaderForTitle(NSString *title, NSString *right);
+/* Stopka sekcji listy grupowanej (tekst wyśrodkowany, kolor zgodny z tłem motywu) i jej wysokość. */
+UIView *SLFooterForText(NSString *text);
+CGFloat SLFooterHeight(NSString *text);
 
 /* Wiersz serii w treningu: numer, ciężar, powtórzenia; po prawej przełącznik "zrobione" (accessoryView). */
 @interface SLSetCell : UITableViewCell

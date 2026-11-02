@@ -86,10 +86,12 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
     return s == 3 ? 4 : 2;
 }
 
-- (NSString *)tableView:(UITableView *)t titleForHeaderInSection:(NSInteger)s
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 34; }
+
+- (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
     NSArray *n = [NSArray arrayWithObjects:@"Wygląd", @"Trening", @"Dane", @"O aplikacji", nil];
-    return GL([n objectAtIndex:(NSUInteger)s]);
+    return SLHeaderForTitle(GL([n objectAtIndex:(NSUInteger)s]), nil);
 }
 
 - (UITableViewCell *)cellWithStyle:(UITableViewCellStyle)style identifier:(NSString *)ident table:(UITableView *)t

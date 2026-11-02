@@ -5,16 +5,17 @@
 
 /* ---------- motywy: kolor pasków i akcentu ---------- */
 
-#define NTHEMES 6
+#define NTHEMES 7
 
 /* hasTint = 0: pasek zostaje całkiem standardowy (domyślny niebieski iOS 6); swatch tylko do próbki w ustawieniach */
-static const struct { NSString *name; int hasTint; int tint[3]; int accent[3]; } kThemes[NTHEMES] = {
-    { @"Błękit",   0, {  88, 119, 171 }, {   0,  96, 200 } },
-    { @"Grafit",   1, {  62,  65,  72 }, {  72,  78,  92 } },
-    { @"Czerwień", 1, { 176,  38,  38 }, { 190,  30,  30 } },
-    { @"Zieleń",   1, {  52, 124,  56 }, {  38, 130,  50 } },
-    { @"Fiolet",   1, { 100,  64, 156 }, { 110,  60, 190 } },
-    { @"Srebro",   1, { 128, 138, 154 }, {  70,  90, 125 } },
+static const struct { NSString *name; int hasTint; int tint[3]; int accent[3]; int linen; } kThemes[NTHEMES] = {
+    { @"Błękit",   0, {  88, 119, 171 }, {   0,  96, 200 }, 0 },
+    { @"Grafit",   1, {  62,  65,  72 }, {  72,  78,  92 }, 0 },
+    { @"Czerwień", 1, { 176,  38,  38 }, { 190,  30,  30 }, 0 },
+    { @"Zieleń",   1, {  52, 124,  56 }, {  38, 130,  50 }, 0 },
+    { @"Fiolet",   1, { 100,  64, 156 }, { 110,  60, 190 }, 0 },
+    { @"Srebro",   1, { 128, 138, 154 }, {  70,  90, 125 }, 0 },
+    { @"Len",      1, {  58,  61,  67 }, { 214, 150,  40 }, 1 },     /* ciemny len (tło systemowe) i grafitowe paski */
 };
 
 static NSInteger gTheme = -1;
@@ -57,15 +58,87 @@ static UIColor *BarTint(void)
     return kThemes[t].hasTint ? RGB(kThemes[t].tint) : nil;
 }
 
-UIColor *SLBackgroundColor(void) { return [UIColor groupTableViewBackgroundColor]; }
-UIColor *SLSubtleColor(void)     { return [UIColor colorWithRed:0.298f green:0.337f blue:0.424f alpha:1.0f]; }
+BOOL SLThemeIsLinen(void) { return kThemes[SLCurrentTheme()].linen != 0; }
+
+/* Sprawdza, czy kolor wzorkowy naprawdę coś rysuje (na części wersji systemu potrafił wyjść czarny). */
+static BOOL ColorDraws(UIColor *c)
+{
+    if (!c) return NO;
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(8, 8), YES, 1.0f);
+    [[UIColor colorWithRed:1.0f green:0.0f blue:1.0f alpha:1.0f] setFill];     /* magenta pod spodem, żeby wykryć przezroczystość */
+    UIRectFill(CGRectMake(0, 0, 8, 8));
+    [c setFill];
+    UIRectFill(CGRectMake(0, 0, 8, 8));
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    if (!img.CGImage) return NO;
+    unsigned char px[4] = { 0, 0, 0, 0 };
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGContextRef ctx = CGBitmapContextCreate(px, 1, 1, 8, 4, cs, kCGImageAlphaPremultipliedLast);
+    CGColorSpaceRelease(cs);
+    if (!ctx) return NO;
+    CGContextDrawImage(ctx, CGRectMake(0, 0, 1, 1), img.CGImage);
+    CGContextRelease(ctx);
+    BOOL magenta = px[0] > 200 && px[1] < 60 && px[2] > 200;
+    BOOL black = px[0] < 6 && px[1] < 6 && px[2] < 6;
+    return !magenta && !black;
+}
+
+static UIColor *DrawnStripes(void)       /* zapas: pionowe jasne prążki jak w tle list grupowanych */
+{
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(7, 2), YES, 0.0f);
+    [[UIColor colorWithRed:0.80f green:0.83f blue:0.87f alpha:1.0f] setFill];
+    UIRectFill(CGRectMake(0, 0, 7, 2));
+    [[UIColor colorWithRed:0.88f green:0.90f blue:0.93f alpha:1.0f] setFill];
+    UIRectFill(CGRectMake(0, 0, 3, 2));
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return [UIColor colorWithPatternImage:img];
+}
+
+static UIColor *DrawnLinen(void)         /* zapas: ciemny splot */
+{
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(4, 4), YES, 0.0f);
+    [[UIColor colorWithRed:0.19f green:0.20f blue:0.23f alpha:1.0f] setFill];
+    UIRectFill(CGRectMake(0, 0, 4, 4));
+    [[UIColor colorWithRed:0.25f green:0.26f blue:0.30f alpha:1.0f] setFill];
+    UIRectFill(CGRectMake(0, 0, 4, 1));
+    UIRectFill(CGRectMake(0, 0, 1, 4));
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return [UIColor colorWithPatternImage:img];
+}
+
+/* tło: systemowe tło list grupowanych albo systemowy len (scrollViewTexturedBackgroundColor) */
+UIColor *SLBackgroundColor(void)
+{
+    static UIColor *cache[2];
+    int linen = SLThemeIsLinen() ? 1 : 0;
+    if (!cache[linen]) {
+        UIColor *c = linen ? [UIColor scrollViewTexturedBackgroundColor] : [UIColor groupTableViewBackgroundColor];
+        if (!ColorDraws(c)) c = linen ? DrawnLinen() : DrawnStripes();
+        cache[linen] = c;
+    }
+    return cache[linen];
+}
+
+UIColor *SLSubtleColor(void)
+{
+    if (SLThemeIsLinen()) return [UIColor colorWithWhite:0.92f alpha:1.0f];
+    return [UIColor colorWithRed:0.298f green:0.337f blue:0.424f alpha:1.0f];
+}
 UIColor *SLAccentColor(void)     { return RGB(kThemes[SLCurrentTheme()].accent); }
 UIColor *SLDangerColor(void)     { return [UIColor colorWithRed:0.75f green:0.05f blue:0.05f alpha:1.0f]; }
 
 void SLStyleShadow(UILabel *l)
 {
-    l.shadowColor = [UIColor whiteColor];
-    l.shadowOffset = CGSizeMake(0, 1);
+    if (SLThemeIsLinen()) {
+        l.shadowColor = [UIColor colorWithWhite:0.0f alpha:0.8f];
+        l.shadowOffset = CGSizeMake(0, -1);
+    } else {
+        l.shadowColor = [UIColor whiteColor];
+        l.shadowOffset = CGSizeMake(0, 1);
+    }
 }
 
 /* ---------- paski: standardowe, tylko z kolorem motywu ---------- */
