@@ -47,7 +47,7 @@
 {
     [super viewDidLoad];
     self.view.backgroundColor = SLBackgroundColor();
-    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
+    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
     _table.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _table.dataSource = self;
     _table.delegate = self;
@@ -83,16 +83,19 @@
     UIView *h = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 196 + photoH)];
     _photo = nil;
     if (photoH > 0) {
-        /* ramka jak komórka listy grupowanej: biała, zaokrąglona, z szarą obwódką */
         UIView *frame = [[UIView alloc] initWithFrame:CGRectMake(10, 12, 300, 212)];
-        frame.backgroundColor = [UIColor whiteColor];
-        frame.layer.cornerRadius = 10;
+        frame.backgroundColor = [UIColor colorWithWhite:0.0f alpha:0.55f];
+        frame.layer.cornerRadius = 8;
         frame.layer.borderWidth = 1;
-        frame.layer.borderColor = [UIColor colorWithWhite:0.68f alpha:1.0f].CGColor;
+        frame.layer.borderColor = [UIColor colorWithWhite:1.0f alpha:0.25f].CGColor;
+        frame.layer.shadowColor = [UIColor blackColor].CGColor;
+        frame.layer.shadowOpacity = 0.5f;
+        frame.layer.shadowOffset = CGSizeMake(0, 2);
+        frame.layer.shadowRadius = 3;
         _photo = [[UIImageView alloc] initWithFrame:CGRectMake(6, 6, 288, 200)];
         _photo.contentMode = UIViewContentModeScaleAspectFill;
         _photo.clipsToBounds = YES;
-        _photo.layer.cornerRadius = 6;
+        _photo.layer.cornerRadius = 5;
         _photo.image = f0;
         _photo.animationImages = [NSArray arrayWithObjects:f0, f1, nil];
         _photo.animationDuration = 1.6;
@@ -135,7 +138,7 @@
     return (NSInteger)[[[_history objectAtIndex:(NSUInteger)s - 1] objectForKey:@"sets"] count];
 }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 34; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
@@ -147,6 +150,7 @@
 {
     SLCell *c = [SLCell cellForTable:t identifier:@"x"];
     c.detailTextLabel.text = nil;
+    c.textLabel.font = [UIFont boldSystemFontOfSize:16];
     if (ip.section == 0) {
         if (![_history count]) { c.textLabel.text = GL(@"Jeszcze nie robiłeś tego ćwiczenia."); return c; }
         double bestKg = 0, bestE = 0, vol = 0;

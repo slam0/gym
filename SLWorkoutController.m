@@ -58,7 +58,7 @@ static UILocalNotification *gRestNote;
     self.view.backgroundColor = SLBackgroundColor();
     CGRect b = self.view.bounds;
 
-    _table = [[UITableView alloc] initWithFrame:b style:UITableViewStyleGrouped];
+    _table = [[UITableView alloc] initWithFrame:b style:UITableViewStylePlain];
     _table.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _table.dataSource = self;
     _table.delegate = self;
@@ -85,7 +85,7 @@ static UILocalNotification *gRestNote;
     UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(20, 40, 280, 40)];
     title.backgroundColor = [UIColor clearColor];
     title.font = [UIFont boldSystemFontOfSize:30];
-    title.textColor = SLSubtleColor();
+    title.textColor = SLTextColor();
     title.textAlignment = NSTextAlignmentCenter;
     SLStyleShadow(title);
     title.text = @"Gym";
@@ -96,25 +96,23 @@ static UILocalNotification *gRestNote;
     sub.font = [UIFont systemFontOfSize:15];
     sub.textColor = SLSubtleColor();
     sub.textAlignment = NSTextAlignmentCenter;
-    SLStyleShadow(sub);
     sub.text = GL(@"Dziennik treningowy");
     [_startView addSubview:sub];
 
-    UIButton *start = SLButton(GL(@"Rozpocznij trening"), 0, CGRectMake(20, 130, 280, 50));
-    start.titleLabel.font = [UIFont boldSystemFontOfSize:20];
+    UIButton *start = SLGelButton(GL(@"Rozpocznij trening"), 0, CGRectMake(30, 130, 260, 56));
+    start.titleLabel.font = [UIFont boldSystemFontOfSize:21];
     [start addTarget:self action:@selector(startTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:start];
 
-    _repeatButton = SLButton(GL(@"Powtórz ostatni trening"), 0, CGRectMake(20, 194, 280, 44));
+    _repeatButton = SLGelButton(GL(@"Powtórz ostatni trening"), 1, CGRectMake(30, 200, 260, 46));
     [_repeatButton addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:_repeatButton];
 
-    _lastLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 252, 280, 60)];
+    _lastLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 258, 280, 60)];
     _lastLabel.backgroundColor = [UIColor clearColor];
     _lastLabel.font = [UIFont systemFontOfSize:14];
     _lastLabel.textColor = SLSubtleColor();
     _lastLabel.textAlignment = NSTextAlignmentCenter;
-    SLStyleShadow(_lastLabel);
     _lastLabel.numberOfLines = 3;
     [_startView addSubview:_lastLabel];
     [self.view addSubview:_startView];
@@ -122,14 +120,15 @@ static UILocalNotification *gRestNote;
 
 - (void)buildFooter
 {
-    _footer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 184)];
-    UIButton *add = SLButton(GL(@"+ Dodaj ćwiczenie"), 0, CGRectMake(10, 14, 300, 44));
+    _footer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 190)];
+    UIButton *add = SLGelButton(GL(@"+ Dodaj ćwiczenie"), 1, CGRectMake(15, 16, 290, 46));
     [add addTarget:self action:@selector(addExerciseTapped) forControlEvents:UIControlEventTouchUpInside];
     [_footer addSubview:add];
-    UIButton *fin = SLButton(GL(@"Zakończ trening"), 0, CGRectMake(10, 68, 300, 44));
+    UIButton *fin = SLGelButton(GL(@"Zakończ trening"), 3, CGRectMake(15, 76, 290, 46));
     [fin addTarget:self action:@selector(finishTapped) forControlEvents:UIControlEventTouchUpInside];
     [_footer addSubview:fin];
-    UIButton *cancel = SLButton(GL(@"Anuluj trening"), 2, CGRectMake(10, 122, 300, 44));
+    UIButton *cancel = SLGelButton(GL(@"Anuluj trening"), 2, CGRectMake(15, 134, 290, 40));
+    cancel.titleLabel.font = [UIFont boldSystemFontOfSize:15];
     [cancel addTarget:self action:@selector(cancelTapped) forControlEvents:UIControlEventTouchUpInside];
     [_footer addSubview:cancel];
     _table.tableFooterView = _footer;
@@ -140,7 +139,6 @@ static UILocalNotification *gRestNote;
     _hint.textAlignment = NSTextAlignmentCenter;
     _hint.font = [UIFont systemFontOfSize:15];
     _hint.textColor = SLSubtleColor();
-    SLStyleShadow(_hint);
     _hint.text = GL(@"Dodaj pierwsze ćwiczenie, żeby zacząć wpisywać serie.");
 }
 
@@ -269,7 +267,7 @@ static UILocalNotification *gRestNote;
     if (![st activeHasDoneSets]) {
         _pendingAction = 1;
         UIAlertView *a = [[UIAlertView alloc] initWithTitle:GL(@"Brak wykonanych serii")
-            message:GL(@"Zaznacz serie jako zrobione (przełącznik po prawej) albo usuń ten trening.")
+            message:GL(@"Zaznacz serie jako zrobione (ptaszek po prawej) albo usuń ten trening.")
             delegate:self cancelButtonTitle:GL(@"Wróć") otherButtonTitles:GL(@"Usuń trening"), nil];
         [a show];
         return;
@@ -360,27 +358,29 @@ static UILocalNotification *gRestNote;
     return (NSInteger)[[e objectForKey:@"sets"] count] + 1;
 }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 44; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 34; }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
     NSDictionary *e = [[self entries] objectAtIndex:(NSUInteger)s];
-    SLSectionHeader *h = [[SLSectionHeader alloc] initWithTitle:[[SLStore shared] nameForExerciseId:[e objectForKey:@"ex"]] right:nil];
-    h.frame = CGRectMake(0, 0, 320, 44);
-    BOOL hasPreview = SLExercisePhoto([e objectForKey:@"ex"], 0) != nil;     /* podgląd ruchu, jeśli ćwiczenie ma zdjęcia */
-    h.titleLabel.frame = CGRectMake(20, 4, hasPreview ? 150 : 210, 36);
-    h.titleLabel.numberOfLines = 2;
-    h.titleLabel.font = [UIFont boldSystemFontOfSize:15];
-    UIButton *x = SLButton(GL(@"Usuń"), 2, CGRectMake(250, 9, 60, 26));
-    x.titleLabel.font = [UIFont boldSystemFontOfSize:13];
+    UIView *h = SLHeaderForTitle([[SLStore shared] nameForExerciseId:[e objectForKey:@"ex"]], nil);
+    h.frame = CGRectMake(0, 0, 320, 34);
+    UIButton *x = [UIButton buttonWithType:UIButtonTypeCustom];
+    x.frame = CGRectMake(268, 0, 52, 34);
     x.tag = s;
+    [x setTitle:GL(@"Usuń") forState:UIControlStateNormal];
+    [x setTitleColor:SLRGB(SLP()->hdrRight, 1) forState:UIControlStateNormal];
+    x.titleLabel.font = [UIFont boldSystemFontOfSize:13];
     x.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
     [x addTarget:self action:@selector(removeEntry:) forControlEvents:UIControlEventTouchUpInside];
     [h addSubview:x];
-    if (hasPreview) {
-        UIButton *p = SLButton(GL(@"Podgląd"), 0, CGRectMake(176, 9, 70, 26));
-        p.titleLabel.font = [UIFont boldSystemFontOfSize:13];
+    if (SLExercisePhoto([e objectForKey:@"ex"], 0)) {                      /* podgląd ruchu, jeśli ćwiczenie ma zdjęcia */
+        UIButton *p = [UIButton buttonWithType:UIButtonTypeCustom];
+        p.frame = CGRectMake(196, 0, 72, 34);
         p.tag = s;
+        [p setTitle:GL(@"Podgląd") forState:UIControlStateNormal];
+        [p setTitleColor:SLRGB(SLP()->hdrRight, 1) forState:UIControlStateNormal];
+        p.titleLabel.font = [UIFont boldSystemFontOfSize:13];
         p.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
         [p addTarget:self action:@selector(previewEntry:) forControlEvents:UIControlEventTouchUpInside];
         [h addSubview:p];
@@ -399,7 +399,7 @@ static UILocalNotification *gRestNote;
 - (CGFloat)tableView:(UITableView *)t heightForRowAtIndexPath:(NSIndexPath *)ip
 {
     NSDictionary *e = [[self entries] objectAtIndex:(NSUInteger)ip.section];
-    if ((NSUInteger)ip.row == [[e objectForKey:@"sets"] count]) return 44;
+    if ((NSUInteger)ip.row == [[e objectForKey:@"sets"] count]) return 40;
     return 56;
 }
 
@@ -412,7 +412,7 @@ static UILocalNotification *gRestNote;
         c.textLabel.text = GL(@"+ Dodaj serię");
         c.textLabel.textAlignment = NSTextAlignmentCenter;
         c.textLabel.textColor = SLAccentColor();
-        c.textLabel.font = [UIFont boldSystemFontOfSize:17];
+        c.textLabel.font = [UIFont boldSystemFontOfSize:15];
         c.detailTextLabel.text = nil;
         return c;
     }
@@ -423,7 +423,7 @@ static UILocalNotification *gRestNote;
         c.repsField.delegate = self;
         c.kgField.inputAccessoryView = _kbBar;
         c.repsField.inputAccessoryView = _kbBar;
-        [c.doneSwitch addTarget:self action:@selector(doneTapped:) forControlEvents:UIControlEventValueChanged];
+        [c.doneButton addTarget:self action:@selector(doneTapped:) forControlEvents:UIControlEventTouchUpInside];
     }
     NSDictionary *s = [sets objectAtIndex:(NSUInteger)ip.row];
     double kg = [[s objectForKey:@"kg"] doubleValue];
@@ -498,7 +498,7 @@ static UILocalNotification *gRestNote;
     [_table reloadData];
 }
 
-- (void)doneTapped:(UISwitch *)b
+- (void)doneTapped:(UIButton *)b
 {
     [self.view endEditing:YES];
     NSIndexPath *ip = [self pathForView:b];
@@ -515,7 +515,6 @@ static UILocalNotification *gRestNote;
         int reps = [[s objectForKey:@"reps"] intValue];
         if (reps <= 0) {
             SLSetCell *cell = (SLSetCell *)[_table cellForRowAtIndexPath:ip];
-            [b setOn:NO animated:YES];
             [cell.repsField becomeFirstResponder];
             return;
         }

@@ -4,6 +4,25 @@
 #import "SLLang.h"
 #import "SLViews.h"
 
+/* ptaszek w kolorze motywu (systemowy jest ciemnoniebieski i na grafitowym tle słabo widać) */
+static UIImage *SLTickImage(void)
+{
+    CGFloat s = 22.0f;
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(s, s), NO, 0.0f);
+    UIBezierPath *p = [UIBezierPath bezierPath];
+    [p moveToPoint:CGPointMake(3, 11.5f)];
+    [p addLineToPoint:CGPointMake(8.5f, 17)];
+    [p addLineToPoint:CGPointMake(19, 5)];
+    p.lineWidth = 3.6f;
+    p.lineCapStyle = kCGLineCapRound;
+    p.lineJoinStyle = kCGLineJoinRound;
+    [SLAccentColor() setStroke];
+    [p stroke];
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+}
+
 @implementation SLChoiceController
 {
     UITableView *_table;
@@ -13,11 +32,11 @@
 {
     [super viewDidLoad];
     self.view.backgroundColor = SLBackgroundColor();
-    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
+    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
     _table.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _table.dataSource = self;
     _table.delegate = self;
-    _table.rowHeight = 44;
+    _table.rowHeight = 52;
     SLStyleTable(_table);
     [self.view addSubview:_table];
 }
@@ -26,11 +45,11 @@
 
 - (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip
 {
-    UITableViewCell *c = [t dequeueReusableCellWithIdentifier:@"choice"];
-    if (!c) c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"choice"];
+    SLCell *c = [SLCell cellForTable:t identifier:@"choice"];
     c.textLabel.text = [self.titles objectAtIndex:(NSUInteger)ip.row];
+    c.detailTextLabel.text = nil;
     c.imageView.image = ip.row < (NSInteger)[self.images count] ? [self.images objectAtIndex:(NSUInteger)ip.row] : nil;
-    c.accessoryType = ip.row == self.selected ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;     /* standardowy ptaszek */
+    c.accessoryView = ip.row == self.selected ? [[UIImageView alloc] initWithImage:SLTickImage()] : nil;
     return c;
 }
 
@@ -68,10 +87,11 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
 {
     [super viewDidLoad];
     self.view.backgroundColor = SLBackgroundColor();
-    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
+    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
     _table.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _table.dataSource = self;
     _table.delegate = self;
+    _table.rowHeight = 52;
     SLStyleTable(_table);
     [self.view addSubview:_table];
 }
@@ -83,10 +103,10 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
 
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s
 {
-    return s == 3 ? 5 : 2;
+    return s == 0 ? 2 : (s == 1 ? 2 : (s == 2 ? 2 : 5));
 }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 34; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
@@ -94,34 +114,16 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
     return SLHeaderForTitle(GL([n objectAtIndex:(NSUInteger)s]), nil);
 }
 
-- (UITableViewCell *)cellWithStyle:(UITableViewCellStyle)style identifier:(NSString *)ident table:(UITableView *)t
+- (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip
 {
-    UITableViewCell *c = [t dequeueReusableCellWithIdentifier:ident];
-    if (!c) c = [[UITableViewCell alloc] initWithStyle:style reuseIdentifier:ident];
+    SLCell *c = [SLCell cellForTable:t identifier:@"s"];
     c.accessoryType = UITableViewCellAccessoryNone;
     c.accessoryView = nil;
     c.imageView.image = nil;
-    c.detailTextLabel.text = nil;
-    return c;
-}
-
-- (void)unitChanged:(UISegmentedControl *)sc
-{
-    [SLStore shared].units = sc.selectedSegmentIndex;
-}
-
-- (NSString *)restTitle:(NSInteger)sec
-{
-    return sec == 0 ? GL(@"Wyłączona") : [NSString stringWithFormat:GL(@"%ld s"), (long)sec];
-}
-
-- (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip
-{
+    c.selectionStyle = UITableViewCellSelectionStyleBlue;
+    c.textLabel.textColor = SLTextColor();
     SLStore *st = [SLStore shared];
-    UITableViewCell *c;
     if (ip.section == 0) {
-        c = [self cellWithStyle:UITableViewCellStyleValue1 identifier:@"v1" table:t];
-        c.selectionStyle = UITableViewCellSelectionStyleBlue;
         c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         if (ip.row == 0) {
             c.textLabel.text = GL(@"Język");
@@ -133,73 +135,38 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
         }
     } else if (ip.section == 1) {
         if (ip.row == 0) {
-            c = [self cellWithStyle:UITableViewCellStyleDefault identifier:@"unit" table:t];
-            c.selectionStyle = UITableViewCellSelectionStyleNone;
             c.textLabel.text = GL(@"Jednostka ciężaru");
-            UISegmentedControl *sc = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:GL(@"kg"), GL(@"lb"), nil]];
-            sc.frame = CGRectMake(0, 0, 100, 30);
-            sc.selectedSegmentIndex = st.units == 1 ? 1 : 0;
-            [sc addTarget:self action:@selector(unitChanged:) forControlEvents:UIControlEventValueChanged];
-            SLStyleSegmented(sc);
-            c.accessoryView = sc;
+            c.detailTextLabel.text = GL(st.units == 1 ? @"funty (lb) — dotknij, aby zmienić" : @"kilogramy (kg) — dotknij, aby zmienić");
         } else {
-            c = [self cellWithStyle:UITableViewCellStyleValue1 identifier:@"v1" table:t];
-            c.selectionStyle = UITableViewCellSelectionStyleBlue;
-            c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             c.textLabel.text = GL(@"Przerwa między seriami");
-            c.detailTextLabel.text = [self restTitle:st.restSeconds];
+            c.detailTextLabel.text = st.restSeconds == 0 ? GL(@"wyłączona — dotknij, aby zmienić")
+                : [NSString stringWithFormat:GL(@"%ld s — dotknij, aby zmienić"), (long)st.restSeconds];
         }
     } else if (ip.section == 2) {
         if (ip.row == 0) {
-            c = [self cellWithStyle:UITableViewCellStyleSubtitle identifier:@"sub" table:t];
-            c.selectionStyle = UITableViewCellSelectionStyleNone;
             c.textLabel.text = GL(@"Kopia zapasowa");
             c.detailTextLabel.text = GL(@"Plik silka.json jest w iTunes → Aplikacje → Udostępnianie plików");
-            c.detailTextLabel.numberOfLines = 2;
+            c.selectionStyle = UITableViewCellSelectionStyleNone;
         } else {
-            c = [self cellWithStyle:UITableViewCellStyleDefault identifier:@"danger" table:t];
-            c.selectionStyle = UITableViewCellSelectionStyleBlue;
             c.textLabel.text = GL(@"Usuń wszystkie dane");
-            c.textLabel.textAlignment = NSTextAlignmentCenter;
-            c.textLabel.textColor = SLDangerColor();
+            c.textLabel.textColor = SLRGB(SLP()->danger, 1);
+            c.detailTextLabel.text = GL(@"Treningi, własne ćwiczenia i ustawienia");
         }
     } else {
-        if (ip.row < 2 || ip.row == 4) {
-            c = [self cellWithStyle:UITableViewCellStyleValue1 identifier:@"v1" table:t];
-            c.selectionStyle = UITableViewCellSelectionStyleNone;
-            if (ip.row == 4) {
-                /* ile zdjęć ćwiczeń jest w aplikacji: 0 oznacza, że folder Resources/ex nie trafił do repozytorium */
-                NSString *dir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ex"];
-                NSUInteger n = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:NULL] count];
+        c.selectionStyle = UITableViewCellSelectionStyleNone;
+        switch (ip.row) {
+            case 0: c.textLabel.text = GL(@"Wersja"); c.detailTextLabel.text = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]; break;
+            case 1: c.textLabel.text = GL(@"Autor"); c.detailTextLabel.text = @"nazar0vsky-slam0"; break;
+            case 2: c.textLabel.text = GL(@"Baza ćwiczeń"); c.detailTextLabel.text = GL(@"free-exercise-db (domena publiczna), własne tłumaczenia"); break;
+            case 3: c.textLabel.text = GL(@"Dane"); c.detailTextLabel.text = GL(@"Zapisane tylko w twoim telefonie"); break;
+            default:
+                /* ile zdjęć ćwiczeń jest w aplikacji: 0 = brak plików ex.pack i ex.plist */
                 c.textLabel.text = GL(@"Zdjęcia ćwiczeń");
-                c.detailTextLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)n];
-            } else if (ip.row == 0) {
-                c.textLabel.text = GL(@"Wersja");
-                c.detailTextLabel.text = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
-            } else {
-                c.textLabel.text = GL(@"Autor");
-                c.detailTextLabel.text = @"nazar0vsky-slam0";
-            }
-        } else {
-            c = [self cellWithStyle:UITableViewCellStyleSubtitle identifier:@"sub" table:t];
-            c.selectionStyle = UITableViewCellSelectionStyleNone;
-            c.detailTextLabel.numberOfLines = 2;
-            if (ip.row == 2) {
-                c.textLabel.text = GL(@"Baza ćwiczeń");
-                c.detailTextLabel.text = GL(@"free-exercise-db (domena publiczna), własne tłumaczenia");
-            } else {
-                c.textLabel.text = GL(@"Dane");
-                c.detailTextLabel.text = GL(@"Zapisane tylko w twoim telefonie");
-            }
+                c.detailTextLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)SLExercisePhotoCount()];
+                break;
         }
     }
     return c;
-}
-
-- (CGFloat)tableView:(UITableView *)t heightForRowAtIndexPath:(NSIndexPath *)ip
-{
-    BOOL tall = (ip.section == 2 && ip.row == 0) || (ip.section == 3 && ip.row >= 2);
-    return tall ? 62 : 44;
 }
 
 - (void)pushChoice:(NSArray *)titles images:(NSArray *)images selected:(NSInteger)sel title:(NSString *)title handler:(void (^)(NSInteger))handler
@@ -225,16 +192,14 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
         NSMutableArray *names = [NSMutableArray array], *imgs = [NSMutableArray array];
         for (NSInteger i = 0; i < SLThemeCount(); i++) { [names addObject:SLThemeName(i)]; [imgs addObject:SLThemeSwatch(i)]; }
         [self pushChoice:names images:imgs selected:SLCurrentTheme() title:GL(@"Motyw") handler:^(NSInteger i) { SLSetTheme(i); }];
+    } else if (ip.section == 1 && ip.row == 0) {
+        st.units = st.units == 1 ? 0 : 1;
+        [t reloadData];
     } else if (ip.section == 1 && ip.row == 1) {
-        NSMutableArray *names = [NSMutableArray array];
         NSInteger idx = 0;
-        for (NSInteger i = 0; i < NRESTS; i++) {
-            [names addObject:[self restTitle:kRests[i]]];
-            if (kRests[i] == st.restSeconds) idx = i;
-        }
-        [self pushChoice:names images:nil selected:idx title:GL(@"Przerwa między seriami") handler:^(NSInteger i) {
-            [SLStore shared].restSeconds = kRests[i];
-        }];
+        for (NSInteger i = 0; i < NRESTS; i++) if (kRests[i] == st.restSeconds) idx = i;
+        st.restSeconds = kRests[(idx + 1) % NRESTS];
+        [t reloadData];
     } else if (ip.section == 2 && ip.row == 1) {
         UIActionSheet *s = [[UIActionSheet alloc] initWithTitle:GL(@"Usunąć wszystkie treningi i dane? Tego nie da się cofnąć.")
                                                        delegate:self cancelButtonTitle:GL(@"Anuluj") destructiveButtonTitle:GL(@"Usuń wszystko") otherButtonTitles:nil];

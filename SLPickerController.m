@@ -20,9 +20,9 @@
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[SLStore shared] muscleGroups] count]; }
 - (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip
 {
-    UITableViewCell *c = [t dequeueReusableCellWithIdentifier:@"m"];
-    if (!c) c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"m"];
+    SLCell *c = [SLCell cellForTable:t identifier:@"m"];
     c.textLabel.text = GL([[[SLStore shared] muscleGroups] objectAtIndex:(NSUInteger)ip.row]);
+    c.detailTextLabel.text = nil;
     return c;
 }
 - (void)tableView:(UITableView *)t didSelectRowAtIndexPath:(NSIndexPath *)ip
@@ -46,7 +46,7 @@
 {
     [super viewDidLoad];
     self.title = GL(@"Ćwiczenia");
-    self.view.backgroundColor = [UIColor whiteColor];
+    self.view.backgroundColor = SLBackgroundColor();
     _search = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     _search.delegate = self;
     _search.placeholder = GL(@"Szukaj ćwiczenia");
@@ -59,6 +59,7 @@
     self.table.delegate = self;
     self.table.tableHeaderView = _search;
     self.table.rowHeight = 50;
+    SLStyleTable(self.table);
     [self.view addSubview:self.table];
     self.navigationItem.rightBarButtonItem = SLBarButton(GL(@"Nowe"), self, @selector(addCustom));
     [self reloadList];
@@ -103,10 +104,11 @@ static NSString *Fold(NSString *s)
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)t { return (NSInteger)[_sections count]; }
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[_sections objectAtIndex:(NSUInteger)s] objectForKey:@"items"] count]; }
-- (NSString *)tableView:(UITableView *)t titleForHeaderInSection:(NSInteger)s
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
     NSDictionary *sec = [_sections objectAtIndex:(NSUInteger)s];
-    return [NSString stringWithFormat:@"%@ (%lu)", [sec objectForKey:@"title"], (unsigned long)[[sec objectForKey:@"items"] count]];
+    return SLHeaderForTitle([sec objectForKey:@"title"], [NSString stringWithFormat:@"%lu", (unsigned long)[[sec objectForKey:@"items"] count]]);
 }
 
 - (NSDictionary *)exerciseAt:(NSIndexPath *)ip
@@ -163,7 +165,7 @@ static NSString *Fold(NSString *s)
     if (i == a.cancelButtonIndex) return;
     NSString *name = [[a textFieldAtIndex:0].text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if ([name length] == 0) return;
-    SLMuscleChooser *mc = [[SLMuscleChooser alloc] initWithStyle:UITableViewStyleGrouped];
+    SLMuscleChooser *mc = [[SLMuscleChooser alloc] initWithStyle:UITableViewStylePlain];
     mc.exerciseName = name;
     __weak SLPickerController *me = self;
     mc.onChoose = ^(NSString *muscle) {

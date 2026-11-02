@@ -39,11 +39,11 @@ static NSTimeInterval SLWeekStart(void)
 {
     [super viewDidLoad];
     self.view.backgroundColor = SLBackgroundColor();
-    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
+    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
     _table.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _table.dataSource = self;
     _table.delegate = self;
-    _table.rowHeight = 60;
+    _table.rowHeight = 62;
     SLStyleTable(_table);
     [self.view addSubview:_table];
     _empty = [[UILabel alloc] initWithFrame:CGRectMake(30, 120, 260, 80)];
@@ -52,7 +52,6 @@ static NSTimeInterval SLWeekStart(void)
     _empty.textAlignment = NSTextAlignmentCenter;
     _empty.font = [UIFont systemFontOfSize:16];
     _empty.textColor = SLSubtleColor();
-    SLStyleShadow(_empty);
     _empty.text = GL(@"Tu pojawią się twoje zakończone treningi.");
     [self.view addSubview:_empty];
 }
@@ -73,7 +72,7 @@ static NSTimeInterval SLWeekStart(void)
 
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[SLStore shared] workouts] count]; }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 34; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
@@ -146,7 +145,7 @@ static NSTimeInterval SLWeekStart(void)
 {
     [super viewDidLoad];
     self.view.backgroundColor = SLBackgroundColor();
-    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
+    _table = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
     _table.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _table.dataSource = self;
     _table.delegate = self;
@@ -154,15 +153,15 @@ static NSTimeInterval SLWeekStart(void)
     _table.rowHeight = 44;
     SLStyleTable(_table);
 
-    UIView *foot = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 70)];
-    UIButton *again = SLButton(GL(@"Powtórz ten trening"), 0, CGRectMake(10, 12, 300, 44));
+    UIView *foot = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 80)];
+    UIButton *again = SLGelButton(GL(@"Powtórz ten trening"), 0, CGRectMake(15, 18, 290, 46));
     [again addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [foot addSubview:again];
     _table.tableFooterView = foot;
 
     NSString *summary = [NSString stringWithFormat:@"%ld %@", (long)([SLStore durationOfWorkout:_w] / 60.0 + 0.5), GL(@"min")];
     UIView *head = SLHeaderForTitle(summary, SLWeightString([SLStore volumeOfWorkout:_w]));
-    head.frame = CGRectMake(0, 0, 320, 34);
+    head.frame = CGRectMake(0, 0, 320, 26);
     _table.tableHeaderView = head;
     [self.view addSubview:_table];
 }
@@ -170,7 +169,7 @@ static NSTimeInterval SLWeekStart(void)
 - (NSArray *)entries { return [_w objectForKey:@"entries"]; }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)t { return (NSInteger)[[self entries] count]; }
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[[self entries] objectAtIndex:(NSUInteger)s] objectForKey:@"sets"] count]; }
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 34; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
     NSDictionary *e = [[self entries] objectAtIndex:(NSUInteger)s];
@@ -187,6 +186,7 @@ static NSTimeInterval SLWeekStart(void)
     BOOL pr = [[s objectForKey:@"pr"] boolValue];
     c.textLabel.text = [NSString stringWithFormat:@"%ld.   %@ × %d%@", (long)ip.row + 1, SLWeightString(kg), reps, pr ? @"   ★" : @""];
     c.detailTextLabel.text = nil;
+    c.textLabel.font = [UIFont boldSystemFontOfSize:16];
     return c;
 }
 

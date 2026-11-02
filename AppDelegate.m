@@ -21,6 +21,7 @@
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:root];
     SLStyleNavigationBar(nav.navigationBar);
     nav.tabBarItem = [[UITabBarItem alloc] initWithTitle:title image:SLTabIcon(kind) tag:kind];
+    SLStyleTabItem(nav.tabBarItem, kind);
     return nav;
 }
 
@@ -61,6 +62,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [SLStore shared];
+    [application setStatusBarStyle:UIStatusBarStyleBlackOpaque];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor blackColor];
 
