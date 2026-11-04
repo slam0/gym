@@ -1,8 +1,5 @@
-Gym 1.4.2 - len wyłącznie z UIKit
+Gym 1.4.2 (poprawka błędu budowania)
 
-Zmiana: motyw "Len" używa teraz samego systemowego lnu z UIKit (scrollViewTexturedBackgroundColor) - bez przyciemniania,
-bez własnych wzorów i bez zapasowego splotu. Tło tabel jest ustawiane jako widok tła (backgroundView), tak jak robi to sam UIKit.
-Ustawienia -> O aplikacji -> "Tło lnu" pokazuje wynik testu rysowania (tylko informacja).
-
-Wgraj 5 plików do repozytorium Silka (Resources/Info.plist do folderu Resources), potem Actions -> Run workflow.
-Nie testowane na telefonie. Jeśli tło nadal jest czarne, napisz, co pokazuje wiersz "Tło lnu".
+Błąd: "implicit declaration of function 'SLLinenIsSystem'" - w poprzednim zipie zabrakło pliku SLTheme.h.
+Ten zip ma komplet 6 plików zmienionych po 1.4.0. Wgraj WSZYSTKIE (SLTheme.h też), Resources/Info.plist do folderu Resources.
+Potem Actions -> Run workflow.
