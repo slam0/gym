@@ -103,7 +103,7 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
 
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s
 {
-    return s == 0 ? 2 : (s == 1 ? 2 : (s == 2 ? 2 : 5));
+    return s == 0 ? 2 : (s == 1 ? 2 : (s == 2 ? 2 : 6));
 }
 
 - (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
@@ -159,6 +159,10 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
             case 1: c.textLabel.text = GL(@"Autor"); c.detailTextLabel.text = @"nazar0vsky-slam0"; break;
             case 2: c.textLabel.text = GL(@"Baza ćwiczeń"); c.detailTextLabel.text = GL(@"free-exercise-db (domena publiczna), własne tłumaczenia"); break;
             case 3: c.textLabel.text = GL(@"Dane"); c.detailTextLabel.text = GL(@"Zapisane tylko w twoim telefonie"); break;
+            case 5:
+                c.textLabel.text = GL(@"Tło lnu");
+                c.detailTextLabel.text = GL(SLLinenIsSystem() ? @"systemowy, test OK" : @"systemowy, test nieudany");
+                break;
             default:
                 /* ile zdjęć ćwiczeń jest w aplikacji: 0 = brak plików ex.pack i ex.plist */
                 c.textLabel.text = GL(@"Zdjęcia ćwiczeń");

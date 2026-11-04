@@ -1,20 +1,8 @@
-Gym 1.4.0 - pełny projekt (twoja wersja 1.1.0 + nowości)
+Gym 1.4.2 - len wyłącznie z UIKit
 
-Co nowego:
-1. Podgląd ćwiczeń: dwie klatki ruchu w szczegółach ćwiczenia (animacja, dotknięcie zatrzymuje), miniatury na listach,
-   przycisk "Podgląd" przy ćwiczeniu w treningu. Zdjęcia są w JEDNYM pliku (Resources/ex.pack + Resources/ex.plist),
-   bo GitHub z przeglądarki przyjmuje najwyżej 100 plików naraz, a zdjęć było 315.
-   Kontrola: Ustawienia -> O aplikacji -> "Zdjęcia ćwiczeń" ma pokazać 315.
-2. Paski ze standardowego UIKit: pasek nawigacji, pasek zakładek i pasek stopera przerwy (UIToolbar) są systemowe,
-   motyw nadaje im tylko kolor. Zaznaczona ikona zakładki ma kolor akcentu motywu.
-3. Nowy motyw "Len" (Ustawienia -> Motyw): ciemny systemowy len w tle, grafitowe paski. Gdyby system zwrócił czarne tło,
-   użyje zapasowego wzoru.
-4. Reszta wyglądu (komórki i przyciski z połyskiem, pozostałe 6 motywów) jak dotąd.
+Zmiana: motyw "Len" używa teraz samego systemowego lnu z UIKit (scrollViewTexturedBackgroundColor) - bez przyciemniania,
+bez własnych wzorów i bez zapasowego splotu. Tło tabel jest ustawiane jako widok tła (backgroundView), tak jak robi to sam UIKit.
+Ustawienia -> O aplikacji -> "Tło lnu" pokazuje wynik testu rysowania (tylko informacja).
 
-Jak wgrać:
-1. Rozpakuj zip. Wgraj CAŁĄ zawartość do repozytorium Silka, zastępując pliki (folder Resources też; ukryty .github się nie zmienił).
-2. Actions -> Zbuduj aplikację -> Run workflow (nie Re-run).
-3. Zainstaluj nowy .deb albo .ipa. Treningi zostają (to aktualizacja).
-
-Nie było testowane na prawdziwym telefonie, tylko sprawdzone kompilacją.
-Jeśli coś wygląda źle albo "Zdjęcia ćwiczeń" pokazuje 0, wyślij zrzut ekranu.
+Wgraj 5 plików do repozytorium Silka (Resources/Info.plist do folderu Resources), potem Actions -> Run workflow.
+Nie testowane na telefonie. Jeśli tło nadal jest czarne, napisz, co pokazuje wiersz "Tło lnu".

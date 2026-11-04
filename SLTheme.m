@@ -164,30 +164,18 @@ static BOOL ColorDraws(UIColor *c)
     return !magenta && !black;
 }
 
-/* ciemny len: systemowy len (scrollViewTexturedBackgroundColor) przyciemniony czernią; zapas: własny ciemny splot */
+/* Len to wyłącznie systemowy len z UIKit (scrollViewTexturedBackgroundColor), bez przeróbek i bez własnych wzorów.
+   Test rysowania służy tylko do diagnostyki w Ustawieniach (nie podmienia koloru). */
 static UIColor *LinenBackground(void)
 {
-    static UIColor *linen = nil;
-    if (linen) return linen;
-    UIColor *base = [UIColor scrollViewTexturedBackgroundColor];
-    BOOL ok = ColorDraws(base);
-    CGFloat side = 128.0f;
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(side, side), YES, 0.0f);
-    if (ok) {
-        [base setFill];
-        UIRectFill(CGRectMake(0, 0, side, side));
-        [[UIColor colorWithWhite:0.0f alpha:0.55f] setFill];
-        UIRectFill(CGRectMake(0, 0, side, side));
-    } else {
-        [[UIColor colorWithRed:0.10f green:0.11f blue:0.13f alpha:1.0f] setFill];
-        UIRectFill(CGRectMake(0, 0, side, side));
-        [[UIColor colorWithRed:0.15f green:0.16f blue:0.19f alpha:1.0f] setFill];
-        for (CGFloat k = 0; k < side; k += 4) { UIRectFill(CGRectMake(0, k, side, 1)); UIRectFill(CGRectMake(k, 0, 1, side)); }
-    }
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    linen = [UIColor colorWithPatternImage:img];
-    return linen;
+    return [UIColor scrollViewTexturedBackgroundColor];
+}
+
+BOOL SLLinenIsSystem(void)
+{
+    static int result = -1;
+    if (result < 0) result = ColorDraws(LinenBackground()) ? 1 : 0;
+    return result == 1;
 }
 
 /* Tło: teksturowane, delikatne poziome "szczotkowane" linie (motyw Len: ciemny len). */
@@ -316,8 +304,12 @@ void SLStyleTabItem(UITabBarItem *item, int kind)
 
 void SLStyleTable(UITableView *table)
 {
-    table.backgroundView = nil;
-    table.backgroundColor = SLBackgroundColor();
+    /* tło jako widok (backgroundView): tak UIKit sam rysuje systemowe wzory, także len */
+    UIView *bg = [[UIView alloc] initWithFrame:table.bounds];
+    bg.backgroundColor = SLBackgroundColor();
+    bg.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    table.backgroundView = bg;
+    table.backgroundColor = [UIColor clearColor];
     table.separatorColor = SLRGB(SLP()->sep, 1);
 }
 
