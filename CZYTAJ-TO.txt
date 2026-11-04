@@ -1,5 +1,9 @@
-Gym 1.4.2 (poprawka błędu budowania)
+Gym 1.4.3 - motyw Srebro z teksturą
 
-Błąd: "implicit declaration of function 'SLLinenIsSystem'" - w poprzednim zipie zabrakło pliku SLTheme.h.
-Ten zip ma komplet 6 plików zmienionych po 1.4.0. Wgraj WSZYSTKIE (SLTheme.h też), Resources/Info.plist do folderu Resources.
-Potem Actions -> Run workflow.
+Zmiana: motyw "Srebro" ma w tle szarą metaliczną teksturę z UIKit (underPageBackgroundColor), tak samo jak Len ma systemowy len.
+Bez przyciemniania i bez własnych wzorów. UIKit nie ma gotowej "srebrnej" tekstury; to jest najbliższa systemowa.
+Wiersz "Tekstura tła" w Ustawieniach -> O aplikacji pokazuje test rysowania dla Len i Srebro (tylko informacja).
+
+Ten zip zawiera KOMPLET plików zmienionych po 1.4.0 (6 plików, razem z SLTheme.h). Wgraj wszystkie;
+Resources/Info.plist do folderu Resources. Potem Actions -> Run workflow.
+Nie testowane na telefonie.

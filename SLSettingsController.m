@@ -160,7 +160,7 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
             case 2: c.textLabel.text = GL(@"Baza ćwiczeń"); c.detailTextLabel.text = GL(@"free-exercise-db (domena publiczna), własne tłumaczenia"); break;
             case 3: c.textLabel.text = GL(@"Dane"); c.detailTextLabel.text = GL(@"Zapisane tylko w twoim telefonie"); break;
             case 5:
-                c.textLabel.text = GL(@"Tło lnu");
+                c.textLabel.text = GL(@"Tekstura tła");
                 c.detailTextLabel.text = GL(SLLinenIsSystem() ? @"systemowy, test OK" : @"systemowy, test nieudany");
                 break;
             default:

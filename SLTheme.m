@@ -13,7 +13,7 @@ static const struct { NSString *name; int accent[3]; int light; int linen; } kTh
     { @"Czerwień", { 240,  70,  70 }, 0, 0 },
     { @"Zieleń",   {  90, 200,  70 }, 0, 0 },
     { @"Fiolet",   { 170, 110, 255 }, 0, 0 },
-    { @"Srebro",   {  22, 118, 220 }, 1, 0 },
+    { @"Srebro",   {  22, 118, 220 }, 1, 2 },          /* jasne, ze srebrnoszarą teksturą systemowego tła UIKit (underPageBackgroundColor) */
     { @"Len",      { 255, 138,   0 }, 0, 1 },          /* grafit z ciemnym lnem w tle (systemowy len iOS 6) */
 };
 
@@ -50,7 +50,7 @@ static void BuildPalette(NSInteger theme, SLPalette *p)
         SET(p->shadow, 0, 0, 0); SET(p->chrome, 26, 28, 33); SET(p->danger, 255, 115, 115);
         p->gridAlpha = 0.07f; p->shadowAlpha = 0.8f; p->shadowDY = -1.0f; p->cellHiAlpha = 0.14f; p->cellLoAlpha = 0.55f;
         /* delikatne przebarwienie grafitu kolorem motywu (poza pierwszym, czystym grafitem) */
-        if (theme != 0 && !kThemes[theme].linen) {
+        if (theme != 0 && kThemes[theme].linen != 1) {
             int *group[] = { p->bg, p->bgHi, p->bgLo, p->barT1, p->barT2, p->barB1, p->barB2, p->barTint, p->cellT1, p->cellT2,
                              p->cellB1, p->cellB2, p->hdrT, p->hdrB, p->fieldT, p->fieldB, p->tileT, p->tileB, p->panelT, p->panelB,
                              p->sep, p->neutT, p->neutB, p->neutBorder, p->chrome };
@@ -164,25 +164,28 @@ static BOOL ColorDraws(UIColor *c)
     return !magenta && !black;
 }
 
-/* Len to wyłącznie systemowy len z UIKit (scrollViewTexturedBackgroundColor), bez przeróbek i bez własnych wzorów.
+/* Tła tekstur to wyłącznie systemowe kolory UIKit, bez przeróbek i bez własnych wzorów:
+   Len = scrollViewTexturedBackgroundColor, Srebro = underPageBackgroundColor (szara metaliczna tekstura).
    Test rysowania służy tylko do diagnostyki w Ustawieniach (nie podmienia koloru). */
-static UIColor *LinenBackground(void)
+static UIColor *TextureBackground(int kind)
 {
-    return [UIColor scrollViewTexturedBackgroundColor];
+    return kind == 2 ? [UIColor underPageBackgroundColor] : [UIColor scrollViewTexturedBackgroundColor];
 }
 
 BOOL SLLinenIsSystem(void)
 {
-    static int result = -1;
-    if (result < 0) result = ColorDraws(LinenBackground()) ? 1 : 0;
-    return result == 1;
+    static int result[3] = { -1, -1, -1 };
+    int kind = kThemes[SLCurrentTheme()].linen;
+    if (kind == 0) return YES;
+    if (result[kind] < 0) result[kind] = ColorDraws(TextureBackground(kind)) ? 1 : 0;
+    return result[kind] == 1;
 }
 
 /* Tło: teksturowane, delikatne poziome "szczotkowane" linie (motyw Len: ciemny len). */
 UIColor *SLBackgroundColor(void)
 {
     NSInteger t = SLCurrentTheme();
-    if (kThemes[t].linen) return LinenBackground();
+    if (kThemes[t].linen) return TextureBackground(kThemes[t].linen);
     if (!gBgCache[t]) {
         const SLPalette *p = SLP();
         UIGraphicsBeginImageContextWithOptions(CGSizeMake(8, 4), YES, 0.0f);

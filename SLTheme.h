@@ -39,7 +39,7 @@ UIColor *SLGreenColor(void);
 void SLStyleShadow(UILabel *label);     /* cień tekstu pasujący do motywu */
 
 void SLStyleNavigationBar(UINavigationBar *bar);
-BOOL SLLinenIsSystem(void);                 /* YES = len systemowy, NO = własny zapasowy splot */
+BOOL SLLinenIsSystem(void);                 /* test rysowania systemowej tekstury tła bieżącego motywu (Len, Srebro) */
 void SLStyleTabBar(UITabBar *bar);
 void SLStyleToolbar(UIToolbar *bar);
 void SLStyleTabItem(UITabBarItem *item, int kind);   /* 0 trening, 1 historia, 2 ćwiczenia, 3 ustawienia, 4 główna */

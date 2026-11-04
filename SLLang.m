@@ -171,7 +171,7 @@ static const struct { NSString *pl, *en, *ru; } kStrings[] = {
     { @"Srebro", @"Silver", @"Серебро" },
     { @"Len", @"Linen", @"Лён" },
     { @"Zdjęcia ćwiczeń", @"Exercise photos", @"Фото упражнений" },
-    { @"Tło lnu", @"Linen background", @"Фон «лён»" },
+    { @"Tekstura tła", @"Background texture", @"Текстура фона" },
     { @"systemowy, test OK", @"system, test OK", @"системный, тест OK" },
     { @"systemowy, test nieudany", @"system, test failed", @"системный, тест не пройден" },
     { @"kg", @"kg", @"кг" },
