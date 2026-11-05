@@ -150,7 +150,7 @@
 {
     SLCell *c = [SLCell cellForTable:t identifier:@"x"];
     c.detailTextLabel.text = nil;
-    c.textLabel.font = [UIFont boldSystemFontOfSize:16];
+    c.textLabel.font = SLTitleFont(16);
     if (ip.section == 0) {
         if (![_history count]) { c.textLabel.text = GL(@"Jeszcze nie robiłeś tego ćwiczenia."); return c; }
         double bestKg = 0, bestE = 0, vol = 0;

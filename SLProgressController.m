@@ -76,7 +76,7 @@
 {
     SLCell *c = [SLCell cellForTable:t identifier:@"pr"];
     c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    c.textLabel.font = [UIFont boldSystemFontOfSize:17];
+    c.textLabel.font = SLTitleFont(17);
     SLStore *st = [SLStore shared];
     if (ip.section == 0) {
         switch (ip.row) {
@@ -256,7 +256,7 @@
     SLCell *c = [SLCell cellForTable:t identifier:@"c"];
     NSDictionary *w = [_rows objectAtIndex:(NSUInteger)ip.row];
     c.textLabel.text = SLDateString([[w objectForKey:@"start"] doubleValue]);
-    c.textLabel.font = [UIFont boldSystemFontOfSize:16];
+    c.textLabel.font = SLTitleFont(16);
     c.detailTextLabel.text = [NSString stringWithFormat:@"%@, %@, %@", SLCountString([SLStore exerciseCountInWorkout:w], SLNounExercise),
                               SLCountString([SLStore doneSetsInWorkout:w], SLNounSet), SLWeightString([SLStore volumeOfWorkout:w])];
     c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -320,7 +320,7 @@
 - (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip
 {
     SLCell *c = [SLCell cellForTable:t identifier:@"rec"];
-    c.textLabel.font = [UIFont boldSystemFontOfSize:15];
+    c.textLabel.font = SLTitleFont(15);
     if ([_records count] == 0) {
         c.textLabel.text = GL(@"Brak rekordów");
         c.detailTextLabel.text = GL(@"Zakończ trening z wykonanymi seriami, a pojawią się tutaj.");
@@ -472,7 +472,7 @@
 - (UITableViewCell *)tableView:(UITableView *)t cellForRowAtIndexPath:(NSIndexPath *)ip
 {
     SLCell *c = [SLCell cellForTable:t identifier:@"mu"];
-    c.textLabel.font = [UIFont boldSystemFontOfSize:16];
+    c.textLabel.font = SLTitleFont(16);
     UIView *bar = [c.contentView viewWithTag:91];
     UIView *track = [c.contentView viewWithTag:92];
     if (!bar) {

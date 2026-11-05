@@ -439,7 +439,7 @@ static UILocalNotification *gRestNote;
         c.textLabel.text = GL(@"+ Dodaj serię");
         c.textLabel.textAlignment = NSTextAlignmentCenter;
         c.textLabel.textColor = SLAccentColor();
-        c.textLabel.font = [UIFont boldSystemFontOfSize:15];
+        c.textLabel.font = SLTitleFont(15);
         c.detailTextLabel.text = nil;
         return c;
     }

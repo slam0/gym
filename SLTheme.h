@@ -34,6 +34,8 @@ UIImage *SLThemeSwatch(NSInteger index);        /* mała błyszcząca próbka ko
 
 BOOL SLGameCenter(void);                /* czy aktywny motyw to Game Center */
 CGFloat SLHeaderHeight(void);           /* wysokość nagłówka sekcji (26, w Game Center 40) */
+UIFont *SLTitleFont(CGFloat size);       /* tytuł wiersza: Georgia Bold w Game Center, inaczej pogrubiony systemowy */
+void SLApplyAppearance(void);           /* przyciski pasków (tło, napisy) dla bieżącego motywu */
 UIImage *SLGCImage(NSString *name);     /* grafika motywu Game Center z Resources (nil, gdy brak) */
 UIImage *SLGCTabIcon(int kind, BOOL selected);   /* kolorowa ikona zakładki Game Center */
 UIColor *SLBackgroundColor(void);       /* teksturowane tło tabel */

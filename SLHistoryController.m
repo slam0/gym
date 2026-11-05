@@ -190,7 +190,7 @@ static NSTimeInterval SLWeekStart(void)
     BOOL pr = [[s objectForKey:@"pr"] boolValue];
     c.textLabel.text = [NSString stringWithFormat:@"%ld.   %@ × %d%@", (long)ip.row + 1, SLWeightString(kg), reps, pr ? @"   ★" : @""];
     c.detailTextLabel.text = nil;
-    c.textLabel.font = [UIFont boldSystemFontOfSize:16];
+    c.textLabel.font = SLTitleFont(16);
     return c;
 }
 

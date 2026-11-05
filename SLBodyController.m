@@ -72,7 +72,7 @@ static double SLMeasureDisplay(NSInteger type, double v)
 {
     SLCell *c = [SLCell cellForTable:t identifier:@"m"];
     c.textLabel.text = SLMeasureName(ip.row);
-    c.textLabel.font = [UIFont boldSystemFontOfSize:17];
+    c.textLabel.font = SLTitleFont(17);
     NSArray *ms = [[SLStore shared] measuresOfType:ip.row];
     if ([ms count]) {
         NSDictionary *m = [ms objectAtIndex:0];
@@ -203,7 +203,7 @@ static double SLMeasureDisplay(NSInteger type, double v)
     NSDictionary *m = [_ms objectAtIndex:(NSUInteger)ip.row];
     c.textLabel.text = [NSString stringWithFormat:@"%@   ·   %@", SLMeasureValueString(_type, [[m objectForKey:@"v"] doubleValue]),
                         SLDateString([[m objectForKey:@"d"] doubleValue])];
-    c.textLabel.font = [UIFont boldSystemFontOfSize:15];
+    c.textLabel.font = SLTitleFont(15);
     c.detailTextLabel.text = nil;
     return c;
 }
@@ -325,7 +325,7 @@ static double SLMeasureDisplay(NSInteger type, double v)
     c.imageView.contentMode = UIViewContentModeScaleAspectFill;
     c.imageView.clipsToBounds = YES;
     c.textLabel.text = SLDateString([[p objectForKey:@"d"] doubleValue]);
-    c.textLabel.font = [UIFont boldSystemFontOfSize:16];
+    c.textLabel.font = SLTitleFont(16);
     c.detailTextLabel.text = nil;
     c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return c;

@@ -18,6 +18,9 @@ static const struct { NSString *name; int accent[3]; int light; int linen; int g
     { @"Game Center", { 240, 200, 70 }, 0, 0, 1 },     /* zielone sukno, drewniane paski, żółte ramki jak w Game Center z iOS 6 */
 };
 
+static void SLFillGradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom);
+static UIColor *RGBA(int r, int g, int b, CGFloat a);
+
 static SLPalette gPal;
 static NSInteger gTheme = -1;
 
@@ -110,6 +113,7 @@ NSInteger SLCurrentTheme(void)
         NSInteger t = [SLStore shared].themeIndex;
         gTheme = (t >= 0 && t < NTHEMES) ? t : 0;
         BuildPalette(gTheme, &gPal);
+        SLApplyAppearance();
     }
     return gTheme;
 }
@@ -204,6 +208,91 @@ BOOL SLLinenIsSystem(void)
 /* Tło: teksturowane, delikatne poziome "szczotkowane" linie (motyw Len: ciemny len). */
 BOOL SLGameCenter(void) { return SLP()->gc != 0; }
 CGFloat SLHeaderHeight(void) { return SLGameCenter() ? 40.0f : 26.0f; }
+
+UIFont *SLTitleFont(CGFloat size)
+{
+    if (SLGameCenter()) {
+        UIFont *f = [UIFont fontWithName:@"Georgia-Bold" size:size];
+        if (f) return f;
+    }
+    return [UIFont boldSystemFontOfSize:size];
+}
+
+/* Drewniany przycisk paska (Game Center): "Anuluj", "Nowe", "+", a także strzałka wstecz. */
+static UIImage *GCBarButtonImage(BOOL pressed, BOOL back)
+{
+    CGFloat w = back ? 44.0f : 32.0f, h = 30.0f, r = 6.0f, tip = 12.0f;
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(w, h), NO, 0.0f);
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    CGFloat x0 = 0.5f, x1 = w - 0.5f, y0 = 0.5f, y1 = h - 0.5f;
+    CGContextBeginPath(c);
+    if (back) {
+        CGContextMoveToPoint(c, x0, h / 2.0f);
+        CGContextAddLineToPoint(c, x0 + tip, y0);
+        CGContextAddLineToPoint(c, x1 - r, y0);
+        CGContextAddArcToPoint(c, x1, y0, x1, y0 + r, r);
+        CGContextAddLineToPoint(c, x1, y1 - r);
+        CGContextAddArcToPoint(c, x1, y1, x1 - r, y1, r);
+        CGContextAddLineToPoint(c, x0 + tip, y1);
+        CGContextClosePath(c);
+    } else {
+        CGContextMoveToPoint(c, x0 + r, y0);
+        CGContextAddLineToPoint(c, x1 - r, y0);
+        CGContextAddArcToPoint(c, x1, y0, x1, y0 + r, r);
+        CGContextAddLineToPoint(c, x1, y1 - r);
+        CGContextAddArcToPoint(c, x1, y1, x1 - r, y1, r);
+        CGContextAddLineToPoint(c, x0 + r, y1);
+        CGContextAddArcToPoint(c, x0, y1, x0, y1 - r, r);
+        CGContextAddLineToPoint(c, x0, y0 + r);
+        CGContextAddArcToPoint(c, x0, y0, x0 + r, y0, r);
+        CGContextClosePath(c);
+    }
+    CGPathRef path = CGContextCopyPath(c);
+    CGContextSaveGState(c);
+    CGContextClip(c);
+    UIColor *top = pressed ? RGBA(150, 66, 26, 1) : RGBA(222, 138, 84, 1);
+    UIColor *bot = pressed ? RGBA(104, 40, 12, 1) : RGBA(156, 66, 26, 1);
+    SLFillGradient(c, CGRectMake(0, 0, w, h), top, bot);
+    SLFillGradient(c, CGRectMake(0, 0, w, h * 0.5f), RGBA(255, 255, 255, pressed ? 0.06f : 0.22f), RGBA(255, 255, 255, 0.02f));
+    CGContextRestoreGState(c);
+    CGContextAddPath(c, path);
+    CGPathRelease(path);
+    [RGBA(70, 24, 6, 1) setStroke];
+    CGContextSetLineWidth(c, 1.0f);
+    CGContextSetLineJoin(c, kCGLineJoinRound);
+    CGContextStrokePath(c);
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return back ? [img resizableImageWithCapInsets:UIEdgeInsetsMake(14, 20, 14, 8)]
+                : [img resizableImageWithCapInsets:UIEdgeInsetsMake(14, 10, 14, 10)];
+}
+
+void SLApplyAppearance(void)
+{
+    UIBarButtonItem *ap = [UIBarButtonItem appearance];
+    if (SLGameCenter()) {
+        UIImage *n = GCBarButtonImage(NO, NO), *pr = GCBarButtonImage(YES, NO);
+        UIImage *bn = GCBarButtonImage(NO, YES), *bp = GCBarButtonImage(YES, YES);
+        [ap setBackgroundImage:n forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+        [ap setBackgroundImage:pr forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+        [ap setBackButtonBackgroundImage:bn forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+        [ap setBackButtonBackgroundImage:bp forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+        NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
+            [UIColor whiteColor], UITextAttributeTextColor,
+            [UIColor colorWithRed:0.2f green:0.05f blue:0.0f alpha:0.9f], UITextAttributeTextShadowColor,
+            [NSValue valueWithUIOffset:UIOffsetMake(0, -1)], UITextAttributeTextShadowOffset,
+            [UIFont boldSystemFontOfSize:12.0f], UITextAttributeFont, nil];
+        [ap setTitleTextAttributes:attrs forState:UIControlStateNormal];
+        [ap setTitleTextAttributes:attrs forState:UIControlStateHighlighted];
+    } else {
+        [ap setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+        [ap setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+        [ap setBackButtonBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+        [ap setBackButtonBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+        [ap setTitleTextAttributes:nil forState:UIControlStateNormal];
+        [ap setTitleTextAttributes:nil forState:UIControlStateHighlighted];
+    }
+}
 
 UIImage *SLGCImage(NSString *name)
 {

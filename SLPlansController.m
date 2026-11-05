@@ -176,7 +176,7 @@ void SLPromptSavePlan(NSString *suggestedName, NSArray *exerciseIds, id owner)
 {
     SLCell *c = [SLCell cellForTable:t identifier:@"p"];
     c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    c.textLabel.font = [UIFont boldSystemFontOfSize:17];
+    c.textLabel.font = SLTitleFont(17);
     if (ip.section == 0) {
         NSArray *plans = [[SLStore shared] plans];
         if ([plans count] == 0) {
@@ -412,7 +412,7 @@ void SLPromptSavePlan(NSString *suggestedName, NSArray *exerciseIds, id owner)
     NSDictionary *e = [[SLStore shared] exerciseForId:exId];
     c.imageView.image = SLExerciseThumb(exId);
     c.textLabel.text = [[SLStore shared] nameForExerciseId:exId];
-    c.textLabel.font = [UIFont boldSystemFontOfSize:15];
+    c.textLabel.font = SLTitleFont(15);
     c.detailTextLabel.text = GL([e objectForKey:@"muscle"]);
     c.accessoryType = UITableViewCellAccessoryNone;
     return c;
@@ -499,7 +499,7 @@ void SLPromptSavePlan(NSString *suggestedName, NSArray *exerciseIds, id owner)
     SLCell *c = [SLCell cellForTable:t identifier:@"d"];
     const SLProgDay *d = &kPrograms[_index].day[ip.row];
     c.textLabel.text = GL(d->name);
-    c.textLabel.font = [UIFont boldSystemFontOfSize:17];
+    c.textLabel.font = SLTitleFont(17);
     c.detailTextLabel.numberOfLines = 2;
     c.detailTextLabel.text = SLExerciseSummary(SLIdsFromString(d->ids));
     c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
