@@ -4,6 +4,8 @@
 #import "SLLang.h"
 #import "SLViews.h"
 #import "SLExercisesController.h"
+#import "SLSettingsController.h"
+#import "SLStats.h"
 #import "sl_core.h"
 #import <AudioToolbox/AudioToolbox.h>
 
@@ -11,6 +13,8 @@
 {
     UITableView *_table;
     UIView *_startView;
+    SLStatView *_countView, *_timeView, *_volumeView;
+    UILabel *_detail;
     UILabel *_lastLabel;
     UIButton *_repeatButton;
     UIToolbar *_restBar;
@@ -32,7 +36,7 @@ static UILocalNotification *gRestNote;
 - (id)init
 {
     if ((self = [super init])) {
-        self.title = GL(@"Trening");
+        self.title = GL(@"Główna");
     }
     return self;
 }
@@ -76,45 +80,51 @@ static UILocalNotification *gRestNote;
     [nc addObserver:self selector:@selector(storeChanged:) name:SLStoreDidChangeNotification object:nil];
 }
 
+- (UILabel *)startLabel:(CGRect)f size:(CGFloat)size bold:(BOOL)bold color:(UIColor *)color
+{
+    UILabel *l = [[UILabel alloc] initWithFrame:f];
+    l.backgroundColor = [UIColor clearColor];
+    l.textColor = color;
+    l.font = bold ? [UIFont boldSystemFontOfSize:size] : [UIFont systemFontOfSize:size];
+    l.textAlignment = NSTextAlignmentCenter;
+    SLStyleShadow(l);
+    [_startView addSubview:l];
+    return l;
+}
+
+/* Zakładka "Główna" zastępuje dawne "Trening": liczby, start / powtórzenie treningu, a w trakcie treningu serie. */
 - (void)buildStartView:(CGRect)b
 {
     _startView = [[UIView alloc] initWithFrame:b];
     _startView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _startView.backgroundColor = SLBackgroundColor();
 
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(20, 40, 280, 40)];
-    title.backgroundColor = [UIColor clearColor];
-    title.font = [UIFont boldSystemFontOfSize:30];
-    title.textColor = SLTextColor();
-    title.textAlignment = NSTextAlignmentCenter;
-    SLStyleShadow(title);
+    UILabel *title = [self startLabel:CGRectMake(20, 8, 280, 34) size:28 bold:YES color:SLTextColor()];
     title.text = @"Gym";
-    [_startView addSubview:title];
 
-    UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(20, 80, 280, 22)];
-    sub.backgroundColor = [UIColor clearColor];
-    sub.font = [UIFont systemFontOfSize:15];
-    sub.textColor = SLSubtleColor();
-    sub.textAlignment = NSTextAlignmentCenter;
-    sub.text = GL(@"Dziennik treningowy");
-    [_startView addSubview:sub];
+    _countView  = [[SLStatView alloc] initWithFrame:CGRectMake(10, 50, 96, 76)];
+    _timeView   = [[SLStatView alloc] initWithFrame:CGRectMake(112, 50, 96, 76)];
+    _volumeView = [[SLStatView alloc] initWithFrame:CGRectMake(214, 50, 96, 76)];
+    _countView.caption = GL(@"Treningi");
+    _timeView.caption = GL(@"Czas");
+    _volumeView.caption = GL(@"Objętość");
+    [_startView addSubview:_countView];
+    [_startView addSubview:_timeView];
+    [_startView addSubview:_volumeView];
 
-    UIButton *start = SLGelButton(GL(@"Rozpocznij trening"), 0, CGRectMake(30, 130, 260, 56));
+    _detail = [self startLabel:CGRectMake(10, 130, 300, 18) size:13 bold:NO color:SLSubtleColor()];
+
+    UIButton *start = SLGelButton(GL(@"Rozpocznij trening"), 0, CGRectMake(20, 160, 280, 56));
     start.titleLabel.font = [UIFont boldSystemFontOfSize:21];
     [start addTarget:self action:@selector(startTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:start];
 
-    _repeatButton = SLGelButton(GL(@"Powtórz ostatni trening"), 1, CGRectMake(30, 200, 260, 46));
+    _repeatButton = SLGelButton(GL(@"Powtórz ostatni trening"), 1, CGRectMake(20, 228, 280, 46));
     [_repeatButton addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:_repeatButton];
 
-    _lastLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 258, 280, 60)];
-    _lastLabel.backgroundColor = [UIColor clearColor];
-    _lastLabel.font = [UIFont systemFontOfSize:14];
-    _lastLabel.textColor = SLSubtleColor();
-    _lastLabel.textAlignment = NSTextAlignmentCenter;
+    _lastLabel = [self startLabel:CGRectMake(20, 284, 280, 56) size:13 bold:NO color:SLSubtleColor()];
     _lastLabel.numberOfLines = 3;
-    [_startView addSubview:_lastLabel];
     [self.view addSubview:_startView];
 }
 
@@ -195,19 +205,28 @@ static UILocalNotification *gRestNote;
     _startView.hidden = active;
     _table.hidden = !active;
     self.navigationItem.rightBarButtonItem = active ? SLBarButton(GL(@"Zakończ"), self, @selector(finishTapped)) : nil;
+    self.navigationItem.leftBarButtonItem = SLBarButton(GL(@"Ustawienia"), self, @selector(openSettings));
     if (active) {
         [_table reloadData];
         _table.tableHeaderView = ([[[SLStore shared] active] objectForKey:@"entries"] && [[[[SLStore shared] active] objectForKey:@"entries"] count] == 0) ? _hint : nil;
         [self updateTitle];
     } else {
         [self refreshStartView];
-        self.navigationItem.title = GL(@"Trening");
+        self.navigationItem.title = GL(@"Główna");
         [self hideRest];
     }
 }
 
 - (void)refreshStartView
 {
+    NSDictionary *t = [[SLStore shared] totalStats];
+    long n = [[t objectForKey:@"count"] longValue];
+    _countView.value = [NSString stringWithFormat:@"%ld", n];
+    _timeView.value = SLLongDuration([[t objectForKey:@"seconds"] doubleValue]);
+    _volumeView.value = SLBigWeightString([[t objectForKey:@"volume"] doubleValue]);
+    long sets = [[t objectForKey:@"sets"] longValue], reps = [[t objectForKey:@"reps"] longValue];
+    _detail.text = n > 0 ? [NSString stringWithFormat:@"%@ · %@", SLCountString(sets, SLNounSet), SLCountString(reps, SLNounRep)]
+                         : GL(@"Zacznij pierwszy trening, a tu pojawią się twoje liczby.");
     NSArray *ws = [[SLStore shared] workouts];
     if ([ws count]) {
         NSDictionary *w = [ws objectAtIndex:0];
@@ -245,6 +264,12 @@ static UILocalNotification *gRestNote;
 
 #pragma mark - start / koniec
 
+- (void)openSettings
+{
+    [self.view endEditing:YES];
+    [self.navigationController pushViewController:[[SLSettingsController alloc] init] animated:YES];
+}
+
 - (void)startTapped
 {
     [[SLStore shared] startWorkout];
@@ -277,12 +302,14 @@ static UILocalNotification *gRestNote;
                          SLCountString([SLStore exerciseCountInWorkout:w], SLNounExercise),
                          SLCountString([SLStore doneSetsInWorkout:w], SLNounSet),
                          SLWeightString([SLStore volumeOfWorkout:w])];
+    NSInteger prs = [SLStats recordCountInWorkout:w];
+    if (prs > 0) summary = [summary stringByAppendingFormat:@"\n★ %@", [NSString stringWithFormat:GL(@"Nowe rekordy: %ld"), (long)prs]];
     [st finishActive];
     [self hideRest];
     [self refresh];
     UIAlertView *a = [[UIAlertView alloc] initWithTitle:GL(@"Trening zapisany") message:summary delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [a show];
-    if (self.tabBarController) self.tabBarController.selectedIndex = 2;
+    if (self.tabBarController) self.tabBarController.selectedIndex = 0;       /* Historia */
 }
 
 - (void)cancelTapped

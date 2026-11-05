@@ -30,6 +30,22 @@ UIView *SLHeaderForTitle(NSString *title, NSString *right);
 @property (nonatomic, copy) NSArray *labels;     /* NSString dla pierwszego i ostatniego punktu */
 @end
 
+/* Wykres słupkowy (np. treningi w tygodniach). */
+@interface SLBarChartView : UIView
+@property (nonatomic, copy) NSArray *values;     /* NSNumber, od najstarszego */
+@property (nonatomic, copy) NSArray *labels;     /* opis pod każdym słupkiem (może być krótszy / nil) */
+@property (nonatomic, copy) NSString *unit;      /* np. "kg" przy opisie wartości, może być nil */
+@end
+
+/* Siatka miesiąca z zaznaczonymi dniami treningu. */
+@interface SLCalendarView : UIView
+@property (nonatomic) NSInteger year, month;            /* miesiąc do pokazania */
+@property (nonatomic, copy) NSSet *markedDays;          /* NSNumber: dzień miesiąca (1-31) */
+@property (nonatomic) NSInteger selectedDay;            /* 0 = brak */
+@property (nonatomic, weak) id target;
+@property (nonatomic) SEL action;                       /* wywoływane po dotknięciu dnia; selectedDay ustawione */
+@end
+
 /* Błyszczący kafelek z dużą liczbą i podpisem */
 @interface SLStatView : UIView
 @property (nonatomic, copy) NSString *value;

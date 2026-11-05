@@ -1,9 +1,24 @@
-Gym 1.4.3 - motyw Srebro z teksturą
+Gym 1.6.0 - funkcje w stylu Lyfta Premium: plany i programy, rekordy, analiza, postępy
 
-Zmiana: motyw "Srebro" ma w tle szarą metaliczną teksturę z UIKit (underPageBackgroundColor), tak samo jak Len ma systemowy len.
-Bez przyciemniania i bez własnych wzorów. UIKit nie ma gotowej "srebrnej" tekstury; to jest najbliższa systemowa.
-Wiersz "Tekstura tła" w Ustawieniach -> O aplikacji pokazuje test rysowania dla Len i Srebro (tylko informacja).
+Układ zakładek: Historia, Ćwiczenia, GŁÓWNA (środek), Plany, Postępy.
+Ustawienia: przycisk "Ustawienia" po lewej na górze zakładki Główna.
 
-Ten zip zawiera KOMPLET plików zmienionych po 1.4.0 (6 plików, razem z SLTheme.h). Wgraj wszystkie;
-Resources/Info.plist do folderu Resources. Potem Actions -> Run workflow.
+NOWE: zakładka PLANY
+- Własne plany treningowe: "+" tworzy plan, w planie dodajesz ćwiczenia, zmieniasz kolejność ("Edytuj"), usuwasz, zmieniasz nazwę.
+- "Rozpocznij trening" z planu: ćwiczenia wchodzą do treningu z ciężarami z ostatniego razu (bez historii: 3 puste serie).
+- Gotowe programy: Całe ciało 3x, Push/Pull/Nogi, Góra/Dół, Maszyny dla początkujących, Ręce i brzuch, Masa ciała.
+  Można obejrzeć dzień programu, zacząć od niego trening albo dodać wszystkie dni do swoich planów.
+- Historia -> otwórz trening -> "Zapisz jako plan".
+
+NOWE: zakładka POSTĘPY
+- Na górze: treningi w tym tygodniu, seria tygodni z rzędu, liczba rekordów.
+- Kalendarz: miesiące z zaznaczonymi dniami treningu, dotknięcie dnia pokazuje treningi z tego dnia.
+- Rekordy: dla każdego ćwiczenia największy ciężar, szacowane 1RM, data (gwiazdka = rekord z ostatnich 30 dni).
+- Analiza i wykresy: treningi i objętość w ostatnich 8 tygodniach, podział serii na partie mięśni (7/30/90 dni, wszystko).
+- Pomiary ciała: waga, biceps, klatka, talia, biodra, udo, każdy z wykresem i historią.
+- Zdjęcia postępów: z aparatu albo z biblioteki, trzymane w aplikacji.
+- Po zakończeniu treningu okienko pokazuje "Nowe rekordy: N".
+
+Nowe pliki: SLStats, SLPlansController, SLProgressController, SLBodyController (.h/.m). Makefile jest zaktualizowany.
+To jest KOMPLETNY projekt. Wgraj całą zawartość do repozytorium, zastępując pliki (Makefile też!), potem Actions -> Run workflow.
 Nie testowane na telefonie.

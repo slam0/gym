@@ -60,6 +60,9 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
 {
     if (![[_root objectForKey:@"workouts"] isKindOfClass:[NSMutableArray class]]) [_root setObject:[NSMutableArray array] forKey:@"workouts"];
     if (![[_root objectForKey:@"custom"] isKindOfClass:[NSMutableArray class]]) [_root setObject:[NSMutableArray array] forKey:@"custom"];
+    if (![[_root objectForKey:@"plans"] isKindOfClass:[NSMutableArray class]]) [_root setObject:[NSMutableArray array] forKey:@"plans"];
+    if (![[_root objectForKey:@"measures"] isKindOfClass:[NSMutableArray class]]) [_root setObject:[NSMutableArray array] forKey:@"measures"];
+    if (![[_root objectForKey:@"photos"] isKindOfClass:[NSMutableArray class]]) [_root setObject:[NSMutableArray array] forKey:@"photos"];
     if (![[_root objectForKey:@"seq"] isKindOfClass:[NSNumber class]]) [_root setObject:[NSNumber numberWithInt:1] forKey:@"seq"];
     if ([[_root objectForKey:@"active"] isKindOfClass:[NSNull class]]) [_root removeObjectForKey:@"active"];
 }
@@ -415,8 +418,147 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
             [NSNumber numberWithLong:reps], @"reps", nil];
 }
 
+/* ---------- plany ---------- */
+
+- (NSArray *)plans { return [_root objectForKey:@"plans"]; }
+
+- (NSMutableDictionary *)addPlanNamed:(NSString *)name exercises:(NSArray *)exIds
+{
+    NSMutableDictionary *p = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                              [self newId:@"p"], @"id", name, @"name", [NSMutableArray arrayWithArray:exIds], @"ex", nil];
+    [[_root objectForKey:@"plans"] addObject:p];
+    [self save];
+    return p;
+}
+
+- (void)deletePlanWithId:(NSString *)pid
+{
+    NSMutableArray *a = [_root objectForKey:@"plans"];
+    for (NSUInteger i = 0; i < [a count]; i++) {
+        if ([[[a objectAtIndex:i] objectForKey:@"id"] isEqual:pid]) { [a removeObjectAtIndex:i]; break; }
+    }
+    [self save];
+}
+
+- (void)startWorkoutFromExerciseIds:(NSArray *)exIds defaultSets:(NSInteger)setsIfNew
+{
+    NSMutableDictionary *w = [self blankWorkout];
+    [_root setObject:w forKey:@"active"];
+    for (NSString *exId in exIds) {
+        BOOL hasHistory = [[self lastSetsInfoForExercise:exId excludingWorkout:w] objectForKey:@"sets"] != nil;
+        [self addExercise:exId toWorkout:w];
+        if (!hasHistory) {
+            NSMutableDictionary *e = [[w objectForKey:@"entries"] lastObject];
+            for (NSInteger i = 1; i < setsIfNew && i < 10; i++) [self addSetToEntry:e];
+        }
+    }
+    [self save];
+}
+
+/* ---------- pomiary ---------- */
+
+- (NSArray *)measuresOfType:(NSInteger)type
+{
+    NSMutableArray *out = [NSMutableArray array];
+    for (NSDictionary *m in [_root objectForKey:@"measures"]) {
+        if ([[m objectForKey:@"t"] integerValue] == type) [out addObject:m];
+    }
+    [out sortUsingComparator:^NSComparisonResult(id a, id b) {
+        double da = [[a objectForKey:@"d"] doubleValue], db = [[b objectForKey:@"d"] doubleValue];
+        return da < db ? NSOrderedDescending : (da > db ? NSOrderedAscending : NSOrderedSame);
+    }];
+    return out;
+}
+
+- (void)addMeasure:(double)value type:(NSInteger)type
+{
+    NSDictionary *m = [NSDictionary dictionaryWithObjectsAndKeys:
+                       [self newId:@"m"], @"id", [NSNumber numberWithInteger:type], @"t",
+                       [NSNumber numberWithDouble:value], @"v",
+                       [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]], @"d", nil];
+    [[_root objectForKey:@"measures"] addObject:m];
+    [self save];
+}
+
+- (void)deleteMeasureWithId:(NSString *)mid
+{
+    NSMutableArray *a = [_root objectForKey:@"measures"];
+    for (NSUInteger i = 0; i < [a count]; i++) {
+        if ([[[a objectAtIndex:i] objectForKey:@"id"] isEqual:mid]) { [a removeObjectAtIndex:i]; break; }
+    }
+    [self save];
+}
+
+/* ---------- zdjęcia postępów ---------- */
+
+- (NSString *)photoDir
+{
+    NSArray *dirs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *dir = [[dirs objectAtIndex:0] stringByAppendingPathComponent:@"progress"];
+    [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:NULL];
+    return dir;
+}
+
+- (NSString *)photoPathForId:(NSString *)pid thumb:(BOOL)thumb
+{
+    return [[self photoDir] stringByAppendingPathComponent:[NSString stringWithFormat:thumb ? @"%@_t.jpg" : @"%@.jpg", pid]];
+}
+
+/* zmniejsza obraz tak, żeby dłuższy bok miał najwyżej maxSide punktów (i poprawia obrót z aparatu) */
+static UIImage *SLScaledImage(UIImage *img, CGFloat maxSide)
+{
+    CGSize s = img.size;
+    CGFloat longest = s.width > s.height ? s.width : s.height;
+    CGFloat k = longest > maxSide ? maxSide / longest : 1.0f;
+    CGSize ns = CGSizeMake((CGFloat)(int)(s.width * k), (CGFloat)(int)(s.height * k));
+    UIGraphicsBeginImageContextWithOptions(ns, YES, 1.0f);
+    [img drawInRect:CGRectMake(0, 0, ns.width, ns.height)];
+    UIImage *out = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return out;
+}
+
+- (NSArray *)photos
+{
+    NSMutableArray *out = [NSMutableArray arrayWithArray:[_root objectForKey:@"photos"]];
+    [out sortUsingComparator:^NSComparisonResult(id a, id b) {
+        double da = [[a objectForKey:@"d"] doubleValue], db = [[b objectForKey:@"d"] doubleValue];
+        return da < db ? NSOrderedDescending : (da > db ? NSOrderedAscending : NSOrderedSame);
+    }];
+    return out;
+}
+
+- (NSString *)addPhotoWithImage:(UIImage *)image
+{
+    if (!image) return nil;
+    NSString *pid = [self newId:@"f"];
+    NSData *full = UIImageJPEGRepresentation(SLScaledImage(image, 1200), 0.82f);
+    NSData *thumb = UIImageJPEGRepresentation(SLScaledImage(image, 160), 0.8f);
+    if (!full || ![full writeToFile:[self photoPathForId:pid thumb:NO] atomically:YES]) return nil;
+    [thumb writeToFile:[self photoPathForId:pid thumb:YES] atomically:YES];
+    [[_root objectForKey:@"photos"] addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                                               pid, @"id", [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]], @"d", nil]];
+    [self save];
+    return pid;
+}
+
+- (void)deletePhotoWithId:(NSString *)pid
+{
+    NSMutableArray *a = [_root objectForKey:@"photos"];
+    for (NSUInteger i = 0; i < [a count]; i++) {
+        if ([[[a objectAtIndex:i] objectForKey:@"id"] isEqual:pid]) { [a removeObjectAtIndex:i]; break; }
+    }
+    [[NSFileManager defaultManager] removeItemAtPath:[self photoPathForId:pid thumb:NO] error:NULL];
+    [[NSFileManager defaultManager] removeItemAtPath:[self photoPathForId:pid thumb:YES] error:NULL];
+    [self save];
+}
+
 - (void)clearAll
 {
+    for (NSDictionary *p in [NSArray arrayWithArray:[_root objectForKey:@"photos"]]) {
+        [[NSFileManager defaultManager] removeItemAtPath:[self photoPathForId:[p objectForKey:@"id"] thumb:NO] error:NULL];
+        [[NSFileManager defaultManager] removeItemAtPath:[self photoPathForId:[p objectForKey:@"id"] thumb:YES] error:NULL];
+    }
     /* język, motyw i jednostki zostają: to wygląd aplikacji, nie dane treningowe */
     NSMutableDictionary *keep = [NSMutableDictionary dictionary];
     for (NSString *k in [NSArray arrayWithObjects:@"lang", @"theme", @"units", @"rest", nil]) {

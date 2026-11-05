@@ -271,6 +271,18 @@ UIImage *SLTabIcon(int kind)
             [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(3, y, 4, 4)] fill];
             [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(10, y + 0.5f, 17, 3)  cornerRadius:1.5f] fill];
         }
+    } else if (kind == 5) {                /* podkładka z listą = plany */
+        UIBezierPath *body = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(5, 6, 20, 22) cornerRadius:3];
+        body.lineWidth = 2.6f;
+        [body stroke];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(10.5f, 2.5f, 9, 7) cornerRadius:2] fill];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(9, 13, 12, 2.4f) cornerRadius:1.2f] fill];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(9, 18, 12, 2.4f) cornerRadius:1.2f] fill];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(9, 23, 8, 2.4f) cornerRadius:1.2f] fill];
+    } else if (kind == 6) {                /* słupki = postępy */
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(3.5f, 17, 6, 10) cornerRadius:1.5f] fill];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(12, 9, 6, 18) cornerRadius:1.5f] fill];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(20.5f, 3, 6, 24) cornerRadius:1.5f] fill];
     } else if (kind == 4) {                /* dom = główna */
         UIBezierPath *roof = [UIBezierPath bezierPath];
         [roof moveToPoint:CGPointMake(15, 3.5f)];

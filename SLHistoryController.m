@@ -4,6 +4,7 @@
 #import "SLLang.h"
 #import "SLViews.h"
 #import "sl_core.h"
+#import "SLPlansController.h"
 
 /* początek bieżącego tygodnia (poniedziałek 00:00) */
 static NSTimeInterval SLWeekStart(void)
@@ -153,10 +154,13 @@ static NSTimeInterval SLWeekStart(void)
     _table.rowHeight = 44;
     SLStyleTable(_table);
 
-    UIView *foot = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 80)];
+    UIView *foot = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 136)];
     UIButton *again = SLGelButton(GL(@"Powtórz ten trening"), 0, CGRectMake(15, 18, 290, 46));
     [again addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [foot addSubview:again];
+    UIButton *plan = SLGelButton(GL(@"Zapisz jako plan"), 1, CGRectMake(15, 74, 290, 46));
+    [plan addTarget:self action:@selector(savePlanTapped) forControlEvents:UIControlEventTouchUpInside];
+    [foot addSubview:plan];
     _table.tableFooterView = foot;
 
     NSString *summary = [NSString stringWithFormat:@"%ld %@", (long)([SLStore durationOfWorkout:_w] / 60.0 + 0.5), GL(@"min")];
@@ -190,6 +194,16 @@ static NSTimeInterval SLWeekStart(void)
     return c;
 }
 
+- (void)savePlanTapped
+{
+    NSMutableArray *ids = [NSMutableArray array];
+    for (NSDictionary *e in [self entries]) {
+        NSString *exId = [e objectForKey:@"ex"];
+        if (exId && ![ids containsObject:exId]) [ids addObject:exId];
+    }
+    SLPromptSavePlan([NSString stringWithFormat:@"%@ %@", GL(@"Trening"), SLShortDateString([[_w objectForKey:@"start"] doubleValue])], ids, self);
+}
+
 - (void)repeatTapped
 {
     if ([[SLStore shared] active]) {
@@ -200,7 +214,7 @@ static NSTimeInterval SLWeekStart(void)
     }
     [[SLStore shared] startWorkoutRepeating:_w];
     [self.navigationController popToRootViewControllerAnimated:NO];
-    self.tabBarController.selectedIndex = 1;
+    self.tabBarController.selectedIndex = 2;       /* Główna */
 }
 
 @end

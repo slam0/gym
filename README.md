@@ -3,11 +3,11 @@
 Aplikacja do zapisywania treningów na siłowni, napisana w Objective-C pod iOS 6 (jailbreak), budowana w Theosie na GitHubie.
 Wygląd: grafit z połyskiem (komórki i przyciski), standardowe paski UIKit (nawigacji, zakładek, narzędzi) w kolorze motywu, 7 motywów (w tym **Len** – ciemny len z iOS 6 w tle), 3 języki.
 
-## Co potrafi (1.4)
+## Co potrafi (1.5)
 
-* **Główna** – łączna liczba treningów, łączny czas i objętość (suma kg × powtórzenia ze wszystkich serii), liczba serii i powtórzeń,
+* **Główna** (zakładka na środku, zastąpiła osobną zakładkę „Trening”; zakładki: Historia, Ćwiczenia, Główna, Plany, Postępy; ustawienia otwiera przycisk na Głównej) – łączna liczba treningów, łączny czas i objętość (suma kg × powtórzenia ze wszystkich serii), liczba serii i powtórzeń,
   przyciski **Nowy trening** i **Powtórz poprzedni trening** oraz podsumowanie ostatniego treningu.
-* **Trening** – start treningu, dodawanie ćwiczeń, serie z ciężarem i powtórzeniami, ptaszek „zrobione".
+* **Trening** (w zakładce Główna) – start treningu, dodawanie ćwiczeń, serie z ciężarem i powtórzeniami, ptaszek „zrobione".
   Przy każdej serii podpowiada wartości z poprzedniego treningu tego ćwiczenia. Oznacza **nowe rekordy** (szacowane 1RM wg wzoru Epleya).
   „Powtórz ostatni trening" tworzy nowy trening z tych samych ćwiczeń.
 * **Stoper przerwy** – po zaznaczeniu serii odlicza przerwę (domyślnie 90 s; -15/+15/Pomiń), wibruje i wysyła powiadomienie, gdy aplikacja jest w tle.
@@ -40,7 +40,11 @@ Lokalnie: `./build.sh` (potrzebny Theos), test logiki: `gcc sl_core.c tests/core
 | `sl_core.*` | czysta logika w C (1RM, objętość, odmiana liczebników PL/EN/RU) + `tests/core_test.c` |
 | `SLLang.*` | języki: tabela tłumaczeń `GL("polski napis")` (EN/RU), rzeczowniki z odmianą, ustawienie języka |
 | `SLTheme.*`, `SLViews.*` | wygląd: tabela motywów i paleta, standardowe paski w kolorze motywu, żelowe przyciski, komórki, wykres, zdjęcia ćwiczeń z ex.pack, formatowanie liczb i dat |
-| `SLHomeController.*` | zakładka Główna: łączne statystyki i przyciski startu |
+| (usunięty) `SLHomeController.*` | zakładka Główna: łączne statystyki i przyciski startu |
+| `SLStats.*` | analiza historii: rekordy, tygodnie, serie tygodni, partie mięśni |
+| `SLPlansController.*` | zakładka Plany: własne plany i gotowe programy |
+| `SLProgressController.*` | zakładka Postępy: kalendarz, rekordy, analiza |
+| `SLBodyController.*` | pomiary ciała i zdjęcia postępów |
 | `SLWorkoutController.*` | zakładka Trening, serie, stoper przerwy |
 | `SLPickerController.*`, `SLExercisesController.*` | lista ćwiczeń, wyszukiwarka, własne ćwiczenia, szczegóły i wykres |
 | `SLHistoryController.*` | historia i podgląd treningu |
@@ -54,5 +58,5 @@ Lokalnie: `./build.sh` (potrzebny Theos), test logiki: `gcc sl_core.c tests/core
 
 ## Źródła
 
-Lista ćwiczeń i zdjęcia (zmniejszone, w `Resources/ex.pack`) pochodzą z projektu *free-exercise-db* (licencja Unlicense, domena publiczna).
+Lista ćwiczeń i zdjęcia (zmniejszone, w `Resources/ex`) pochodzą z projektu *free-exercise-db* (licencja Unlicense, domena publiczna).
 Aplikacja nie korzysta z żadnych danych ani serwerów innych aplikacji treningowych.

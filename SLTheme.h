@@ -42,7 +42,7 @@ void SLStyleNavigationBar(UINavigationBar *bar);
 BOOL SLLinenIsSystem(void);                 /* test rysowania systemowej tekstury tła bieżącego motywu (Len, Srebro) */
 void SLStyleTabBar(UITabBar *bar);
 void SLStyleToolbar(UIToolbar *bar);
-void SLStyleTabItem(UITabBarItem *item, int kind);   /* 0 trening, 1 historia, 2 ćwiczenia, 3 ustawienia, 4 główna */
+void SLStyleTabItem(UITabBarItem *item, int kind);   /* 0 trening, 1 historia, 2 ćwiczenia, 3 ustawienia, 4 główna, 5 plany, 6 postępy */
 void SLStyleSearchBar(UISearchBar *bar);
 UIImage *SLTabIcon(int kind);
 void SLStyleTable(UITableView *table);

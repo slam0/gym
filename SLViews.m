@@ -394,6 +394,180 @@ static UIImage *SLFieldImage(void)
 @end
 
 
+
+/* ---------- wykres słupkowy ---------- */
+
+@implementation SLBarChartView
+
+- (id)initWithFrame:(CGRect)f
+{
+    if ((self = [super initWithFrame:f])) {
+        self.backgroundColor = [UIColor clearColor];
+        self.contentMode = UIViewContentModeRedraw;
+    }
+    return self;
+}
+
+- (void)setValues:(NSArray *)v { _values = [v copy]; [self setNeedsDisplay]; }
+- (void)setLabels:(NSArray *)v { _labels = [v copy]; [self setNeedsDisplay]; }
+
+- (void)drawRect:(CGRect)rect
+{
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    CGRect b = self.bounds;
+    const SLPalette *p = SLP();
+    UIBezierPath *panel = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.5f, 0.5f) cornerRadius:8];
+    CGContextSaveGState(c);
+    [panel addClip];
+    Gradient(c, b, SLRGB(p->panelT, 1), SLRGB(p->panelB, 1));
+    CGContextRestoreGState(c);
+    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
+    [panel stroke];
+
+    NSUInteger n = [_values count];
+    if (n == 0) return;
+    double mx = 0;
+    for (NSNumber *v in _values) if ([v doubleValue] > mx) mx = [v doubleValue];
+    if (mx <= 0) mx = 1;
+    CGFloat left = 8, right = 8, top = 20, bottom = 22;
+    CGRect plot = CGRectMake(left, top, b.size.width - left - right, b.size.height - top - bottom);
+    CGFloat slot = plot.size.width / n, bw = slot * 0.62f;
+    UIFont *small = [UIFont systemFontOfSize:10];
+    for (NSUInteger i = 0; i < n; i++) {
+        double v = [[_values objectAtIndex:i] doubleValue];
+        CGFloat h = (CGFloat)(v / mx) * plot.size.height;
+        if (v > 0 && h < 3) h = 3;
+        CGRect bar = CGRectMake(plot.origin.x + slot * i + (slot - bw) / 2, plot.origin.y + plot.size.height - h, bw, h);
+        if (v > 0) {
+            UIBezierPath *bp = [UIBezierPath bezierPathWithRoundedRect:bar byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(3, 3)];
+            [SLRGB(p->accent, i == n - 1 ? 1.0f : 0.65f) setFill];
+            [bp fill];
+        }
+        [SLRGB(p->grid, 0.9f) setFill];
+        CGContextFillRect(c, CGRectMake(plot.origin.x + slot * i + 1, plot.origin.y + plot.size.height, slot - 2, 1));
+        if (v > 0) {
+            [SLTextColor() set];
+            NSString *t = SLNumberString(v);
+            [t drawInRect:CGRectMake(plot.origin.x + slot * i - 4, bar.origin.y - 13, slot + 8, 12) withFont:small lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
+        }
+        if (i < [_labels count]) {
+            [SLSubtleColor() set];
+            [[_labels objectAtIndex:i] drawInRect:CGRectMake(plot.origin.x + slot * i - 4, b.size.height - 18, slot + 8, 12) withFont:small lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
+        }
+    }
+}
+
+@end
+
+/* ---------- kalendarz ---------- */
+
+@implementation SLCalendarView
+
+- (id)initWithFrame:(CGRect)f
+{
+    if ((self = [super initWithFrame:f])) {
+        self.backgroundColor = [UIColor clearColor];
+        self.contentMode = UIViewContentModeRedraw;
+    }
+    return self;
+}
+
+- (void)setYear:(NSInteger)y { _year = y; [self setNeedsDisplay]; }
+- (void)setMonth:(NSInteger)m { _month = m; [self setNeedsDisplay]; }
+- (void)setMarkedDays:(NSSet *)s { _markedDays = [s copy]; [self setNeedsDisplay]; }
+- (void)setSelectedDay:(NSInteger)d { _selectedDay = d; [self setNeedsDisplay]; }
+
+/* dni miesiąca i przesunięcie pierwszego dnia (pn = 0) */
+- (void)layoutInfo:(NSInteger *)days offset:(NSInteger *)offset
+{
+    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSDateComponents *dc = [[NSDateComponents alloc] init];
+    dc.year = _year; dc.month = _month; dc.day = 1;
+    NSDate *first = [cal dateFromComponents:dc];
+    *days = (NSInteger)[cal rangeOfUnit:NSDayCalendarUnit inUnit:NSMonthCalendarUnit forDate:first].length;
+    NSInteger wd = [cal components:NSWeekdayCalendarUnit fromDate:first].weekday;      /* 1 = nd */
+    *offset = (wd + 5) % 7;
+}
+
+- (CGFloat)headH { return 22; }
+
+- (void)drawRect:(CGRect)rect
+{
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    CGRect b = self.bounds;
+    const SLPalette *p = SLP();
+    UIBezierPath *panel = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.5f, 0.5f) cornerRadius:8];
+    CGContextSaveGState(c);
+    [panel addClip];
+    Gradient(c, b, SLRGB(p->panelT, 1), SLRGB(p->panelB, 1));
+    CGContextRestoreGState(c);
+    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
+    [panel stroke];
+    if (_year <= 0) return;
+
+    NSInteger days, offset;
+    [self layoutInfo:&days offset:&offset];
+    CGFloat cw = b.size.width / 7.0f, top = [self headH] + 4;
+    NSInteger rows = (offset + days + 6) / 7;
+    CGFloat ch = (b.size.height - top - 4) / (rows > 5 ? 6 : 5);
+    UIFont *small = [UIFont boldSystemFontOfSize:11], *num = [UIFont boldSystemFontOfSize:15];
+    NSArray *dn = [NSArray arrayWithObjects:GL(@"Pn"), GL(@"Wt"), GL(@"Śr"), GL(@"Cz"), GL(@"Pt"), GL(@"Sb"), GL(@"Nd"), nil];
+    [SLSubtleColor() set];
+    for (int i = 0; i < 7; i++)
+        [[dn objectAtIndex:(NSUInteger)i] drawInRect:CGRectMake(cw * i, 6, cw, 14) withFont:small lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
+    NSInteger today = 0;
+    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSDateComponents *tc = [cal components:NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit fromDate:[NSDate date]];
+    if (tc.year == _year && tc.month == _month) today = tc.day;
+    for (NSInteger d = 1; d <= days; d++) {
+        NSInteger idx = offset + d - 1;
+        CGRect cell = CGRectMake(cw * (idx % 7), top + ch * (idx / 7), cw, ch);
+        CGRect dot = CGRectMake(cell.origin.x + cell.size.width / 2 - 15, cell.origin.y + cell.size.height / 2 - 15, 30, 30);
+        BOOL marked = [_markedDays containsObject:[NSNumber numberWithInteger:d]];
+        if (marked) {
+            [SLRGB(p->accent, 1.0f) setFill];
+            [[UIBezierPath bezierPathWithOvalInRect:dot] fill];
+        } else if (d == today) {
+            [SLAccentColor() setStroke];
+            UIBezierPath *ring = [UIBezierPath bezierPathWithOvalInRect:CGRectInset(dot, 1, 1)];
+            ring.lineWidth = 1.5f;
+            [ring stroke];
+        }
+        if (d == _selectedDay) {
+            [SLTextColor() setStroke];
+            UIBezierPath *ring = [UIBezierPath bezierPathWithOvalInRect:CGRectInset(dot, -1, -1)];
+            ring.lineWidth = 2.0f;
+            [ring stroke];
+        }
+        [(marked ? [UIColor whiteColor] : SLTextColor()) set];
+        [[NSString stringWithFormat:@"%ld", (long)d] drawInRect:CGRectMake(cell.origin.x, dot.origin.y + 6, cell.size.width, 20) withFont:num lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentCenter];
+    }
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (_year <= 0) return;
+    CGPoint pt = [[touches anyObject] locationInView:self];
+    NSInteger days, offset;
+    [self layoutInfo:&days offset:&offset];
+    CGFloat cw = self.bounds.size.width / 7.0f, top = [self headH] + 4;
+    NSInteger rows = (offset + days + 6) / 7;
+    CGFloat ch = (self.bounds.size.height - top - 4) / (rows > 5 ? 6 : 5);
+    if (pt.y < top) return;
+    NSInteger col = (NSInteger)(pt.x / cw), row = (NSInteger)((pt.y - top) / ch);
+    NSInteger d = row * 7 + col - offset + 1;
+    if (col < 0 || col > 6 || d < 1 || d > days) return;
+    self.selectedDay = (d == _selectedDay) ? 0 : d;      /* drugie dotknięcie odznacza dzień */
+    if (_target && _action && [_target respondsToSelector:_action]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [_target performSelector:_action withObject:self];
+#pragma clang diagnostic pop
+    }
+}
+
+@end
+
 /* ---------- zdjęcia ćwiczeń ---------- */
 
 /* Wszystkie zdjęcia leżą w jednym pliku Resources/ex.pack (skleione JPEG-i), a spis w ex.plist: nazwa -> [początek, długość].

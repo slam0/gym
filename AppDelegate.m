@@ -2,11 +2,12 @@
 #import "SLStore.h"
 #import "SLTheme.h"
 #import "SLLang.h"
-#import "SLHomeController.h"
 #import "SLWorkoutController.h"
 #import "SLHistoryController.h"
 #import "SLExercisesController.h"
 #import "SLSettingsController.h"
+#import "SLPlansController.h"
+#import "SLProgressController.h"
 
 @interface AppDelegate ()
 {
@@ -29,14 +30,17 @@
 - (UITabBarController *)buildTabs
 {
     _workout = [[SLWorkoutController alloc] init];
+    /* Główna (liczby + trening) jest zakładką na środku: Historia, Ćwiczenia, GŁÓWNA, Plany, Postępy.
+       Ustawienia otwiera przycisk po lewej na Głównej. */
     NSArray *controllers = [NSArray arrayWithObjects:
-        [self navWith:[[SLHomeController alloc] init] title:GL(@"Główna") kind:4],
-        [self navWith:_workout title:GL(@"Trening") kind:0],
         [self navWith:[[SLHistoryController alloc] init] title:GL(@"Historia") kind:1],
         [self navWith:[[SLExercisesController alloc] init] title:GL(@"Ćwiczenia") kind:2],
-        [self navWith:[[SLSettingsController alloc] init] title:GL(@"Ustawienia") kind:3], nil];
+        [self navWith:_workout title:GL(@"Główna") kind:4],
+        [self navWith:[[SLPlansController alloc] init] title:GL(@"Plany") kind:5],
+        [self navWith:[[SLProgressController alloc] init] title:GL(@"Postępy") kind:6], nil];
     UITabBarController *tabs = [[UITabBarController alloc] init];
     tabs.viewControllers = controllers;
+    tabs.selectedIndex = 2;                      /* start na Głównej */
     SLStyleTabBar(tabs.tabBar);
     return tabs;
 }
@@ -50,11 +54,18 @@
 - (void)rebuildInterface
 {
     UITabBarController *old = (UITabBarController *)self.window.rootViewController;
-    NSUInteger selected = [old isKindOfClass:[UITabBarController class]] ? old.selectedIndex : 0;
+    NSUInteger selected = [old isKindOfClass:[UITabBarController class]] ? old.selectedIndex : 2;
+    /* ustawienia leżą na stosie Głównej: po zmianie motywu albo języka otwórz je z powrotem */
+    BOOL settingsOpen = NO;
+    if ([old isKindOfClass:[UITabBarController class]] && [old.viewControllers count] > 2) {
+        UINavigationController *n = (UINavigationController *)[old.viewControllers objectAtIndex:2];
+        settingsOpen = [n.topViewController isKindOfClass:[SLSettingsController class]];
+    }
     [old dismissViewControllerAnimated:NO completion:nil];
     [_workout shutdown];
     UITabBarController *tabs = [self buildTabs];
     tabs.selectedIndex = selected;
+    if (settingsOpen) [(UINavigationController *)[tabs.viewControllers objectAtIndex:2] pushViewController:[[SLSettingsController alloc] init] animated:NO];
     [UIView transitionWithView:self.window duration:0.3 options:UIViewAnimationOptionTransitionCrossDissolve
                     animations:^{ self.window.rootViewController = tabs; } completion:nil];
 }

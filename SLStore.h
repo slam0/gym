@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 /* Wszystkie dane aplikacji w jednym pliku Documents/silka.json.
    Trening to słownik: id, start, end, entries[ { ex, sets[ { kg, reps, done } ] } ]. */
@@ -46,6 +46,26 @@ extern NSString *const SLStoreDidChangeNotification;
 + (double)durationOfWorkout:(NSDictionary *)w;
 /* Suma ze wszystkich zakończonych treningów: count, seconds, volume (kg), sets, reps */
 - (NSDictionary *)totalStats;
+
+/* ---- plany (szablony treningów) ----
+   Plan to słownik: id, name, ex (tablica id ćwiczeń). */
+- (NSArray *)plans;
+- (NSMutableDictionary *)addPlanNamed:(NSString *)name exercises:(NSArray *)exIds;
+- (void)deletePlanWithId:(NSString *)pid;
+/* Nowy trening z listy ćwiczeń: serie jak ostatnio, a gdy brak historii, tyle pustych serii, ile w setsIfNew. */
+- (void)startWorkoutFromExerciseIds:(NSArray *)exIds defaultSets:(NSInteger)setsIfNew;
+
+/* ---- pomiary ciała ----
+   typ: 0 waga (kg), 1 biceps, 2 klatka, 3 talia, 4 biodra, 5 udo (cm). Wpis: id, t, v, d (czas). */
+- (NSArray *)measuresOfType:(NSInteger)type;            /* najnowsze pierwsze */
+- (void)addMeasure:(double)value type:(NSInteger)type;
+- (void)deleteMeasureWithId:(NSString *)mid;
+
+/* ---- zdjęcia postępów (pliki w Documents/progress) ---- */
+- (NSArray *)photos;                                    /* [{id,d}] najnowsze pierwsze */
+- (NSString *)addPhotoWithImage:(UIImage *)image;        /* zmniejsza i zapisuje; zwraca id albo nil */
+- (void)deletePhotoWithId:(NSString *)pid;
+- (NSString *)photoPathForId:(NSString *)pid thumb:(BOOL)thumb;
 
 /* ---- ustawienia ---- */
 @property (nonatomic) NSInteger units;                  /* 0 = kg, 1 = lb */
