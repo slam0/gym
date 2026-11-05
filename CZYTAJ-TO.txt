@@ -1,4 +1,11 @@
-Gym 1.6.0 - funkcje w stylu Lyfta Premium: plany i programy, rekordy, analiza, postępy
+Gym 1.7.0 - motyw GAME CENTER (jak w iOS 6) + ekran powitalny z tablicą i ikona z karteczką
+
+NOWE W 1.7.0: motyw "Game Center" - zielone sukno w tle, drewniany pasek u góry i drewniane zakładki na dole (zaznaczona zakładka ciemniejsza), wiersze w zaokrąglonych grupach z żółtą ramką i żółtą strzałką ">", tytuły czcionką szeryfową (Georgia), nagłówki sekcji żółte z ozdobnymi strzałkami po bokach.
+- Na świeżej instalacji jest motywem domyślnym. Jeśli masz już zapisane ustawienia: Główna -> Ustawienia -> Motyw -> Game Center.
+- Grafiki sukna i drewna leżą w Resources (gc_felt, gc_nav, gc_tab, gc_tabsel, każda też w wersji @2x).
+- Pozostałe motywy (Grafit, Błękit, ...) działają jak dawniej.
+
+NOWE W 1.6.1: ekran powitalny to Twoja tablica z drewnianą ramką, karteczką i pinezką (Default.png, Default@2x.png, Default-568h@2x.png w Resources). Ikona aplikacji: karteczka na tablicy (nr 15).
 
 Układ zakładek: Historia, Ćwiczenia, GŁÓWNA (środek), Plany, Postępy.
 Ustawienia: przycisk "Ustawienia" po lewej na górze zakładki Główna.

@@ -5,9 +5,9 @@
 
 /* ---------- paleta i motywy ---------- */
 
-#define NTHEMES 7
+#define NTHEMES 8
 
-static const struct { NSString *name; int accent[3]; int light; int linen; } kThemes[NTHEMES] = {
+static const struct { NSString *name; int accent[3]; int light; int linen; int gc; } kThemes[NTHEMES] = {
     { @"Grafit",   { 255, 138,   0 }, 0, 0 },
     { @"Błękit",   {  40, 150, 255 }, 0, 0 },
     { @"Czerwień", { 240,  70,  70 }, 0, 0 },
@@ -15,6 +15,7 @@ static const struct { NSString *name; int accent[3]; int light; int linen; } kTh
     { @"Fiolet",   { 170, 110, 255 }, 0, 0 },
     { @"Srebro",   {  22, 118, 220 }, 1, 2 },          /* jasne, ze srebrnoszarą teksturą systemowego tła UIKit (underPageBackgroundColor) */
     { @"Len",      { 255, 138,   0 }, 0, 1 },          /* grafit z ciemnym lnem w tle (systemowy len iOS 6) */
+    { @"Game Center", { 240, 200, 70 }, 0, 0, 1 },     /* zielone sukno, drewniane paski, żółte ramki jak w Game Center z iOS 6 */
 };
 
 static SLPalette gPal;
@@ -34,8 +35,24 @@ static void BuildPalette(NSInteger theme, SLPalette *p)
     { unsigned char *raw = (unsigned char *)p; for (size_t i = 0; i < sizeof(*p); i++) raw[i] = 0; }
     const int white[3] = { 255, 255, 255 }, black[3] = { 0, 0, 0 };
     p->light = kThemes[theme].light;
+    p->gc = kThemes[theme].gc;
     for (int i = 0; i < 3; i++) p->accent[i] = kThemes[theme].accent[i];
-    if (!p->light) {
+    if (p->gc) {
+        SET(p->bg, 24, 137, 76);   SET(p->bgHi, 28, 144, 82); SET(p->bgLo, 20, 128, 70);
+        SET(p->barT1, 190, 126, 84); SET(p->barT2, 160, 86, 42); SET(p->barB1, 142, 58, 20); SET(p->barB2, 152, 66, 26);
+        SET(p->barTint, 166, 72, 28);
+        SET(p->cellT1, 34, 152, 88); SET(p->cellT2, 30, 146, 84); SET(p->cellB1, 26, 140, 80); SET(p->cellB2, 22, 134, 76);
+        SET(p->selT1, 74, 172, 98); SET(p->selT2, 60, 160, 90); SET(p->selB1, 46, 146, 80); SET(p->selB2, 38, 136, 72);
+        SET(p->text, 246, 246, 226); SET(p->subtle, 6, 62, 32); SET(p->tabOff, 246, 170, 98); SET(p->tabOn, 255, 236, 170);
+        SET(p->hdrT, 24, 137, 76); SET(p->hdrB, 24, 137, 76); SET(p->hdrTitle, 232, 226, 100); SET(p->hdrRight, 232, 226, 100);
+        SET(p->fieldT, 6, 62, 32); SET(p->fieldB, 16, 96, 52); SET(p->fieldText, 255, 255, 255);
+        SET(p->tileT, 34, 156, 90); SET(p->tileB, 16, 112, 62); SET(p->tileText, 246, 246, 226);
+        SET(p->panelT, 14, 108, 60); SET(p->panelB, 20, 124, 70); SET(p->grid, 255, 255, 255);
+        SET(p->sep, 232, 226, 100);
+        SET(p->neutT, 78, 168, 106); SET(p->neutB, 18, 104, 58); SET(p->neutBorder, 6, 56, 28);
+        SET(p->shadow, 0, 40, 20); SET(p->chrome, 130, 56, 20); SET(p->danger, 255, 130, 100);
+        p->gridAlpha = 0.14f; p->shadowAlpha = 0.55f; p->shadowDY = -1.0f; p->cellHiAlpha = 0.14f; p->cellLoAlpha = 0.30f;
+    } else if (!p->light) {
         SET(p->bg, 34, 36, 40);    SET(p->bgHi, 40, 42, 47);  SET(p->bgLo, 30, 32, 36);
         SET(p->barT1, 112, 116, 126); SET(p->barT2, 66, 69, 77); SET(p->barB1, 40, 42, 48); SET(p->barB2, 22, 23, 27);
         SET(p->barTint, 58, 61, 69);
@@ -80,6 +97,9 @@ static void BuildPalette(NSInteger theme, SLPalette *p)
     Mix(p->accentGelT, p->accent, white, 0.25f);
     Mix(p->accentGelB, p->accent, black, 0.18f);
     Mix(p->accentGelBorder, p->accent, black, 0.62f);
+    if (p->gc) {                                  /* przyciski jak drewniane paski Game Center */
+        SET(p->accentGelT, 222, 130, 70); SET(p->accentGelB, 142, 54, 18); SET(p->accentGelBorder, 66, 22, 6);
+    }
 }
 
 NSInteger SLThemeCount(void) { return NTHEMES; }
@@ -182,9 +202,28 @@ BOOL SLLinenIsSystem(void)
 }
 
 /* Tło: teksturowane, delikatne poziome "szczotkowane" linie (motyw Len: ciemny len). */
+BOOL SLGameCenter(void) { return SLP()->gc != 0; }
+CGFloat SLHeaderHeight(void) { return SLGameCenter() ? 40.0f : 26.0f; }
+
+UIImage *SLGCImage(NSString *name)
+{
+    static NSMutableDictionary *cache;
+    if (!cache) cache = [NSMutableDictionary dictionary];
+    UIImage *img = [cache objectForKey:name];
+    if (!img) {
+        img = [UIImage imageNamed:name];
+        if (img) [cache setObject:img forKey:name];
+    }
+    return img;
+}
+
 UIColor *SLBackgroundColor(void)
 {
     NSInteger t = SLCurrentTheme();
+    if (kThemes[t].gc) {                          /* zielone sukno ze wzoru z Resources */
+        UIImage *felt = SLGCImage(@"gc_felt");
+        return felt ? [UIColor colorWithPatternImage:felt] : SLRGB(SLP()->bg, 1);
+    }
     if (kThemes[t].linen) return TextureBackground(kThemes[t].linen);
     if (!gBgCache[t]) {
         const SLPalette *p = SLP();
@@ -220,17 +259,40 @@ static void SLFillGradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bott
 void SLStyleNavigationBar(UINavigationBar *bar)
 {
     bar.tintColor = SLRGB(SLP()->barTint, 1);
+    if (SLGameCenter()) {
+        UIImage *wood = SLGCImage(@"gc_nav");
+        if (wood) {
+            UIImage *img = [wood resizableImageWithCapInsets:UIEdgeInsetsMake(0, 100, 0, 100)];
+            [bar setBackgroundImage:img forBarMetrics:UIBarMetricsDefault];
+            [bar setBackgroundImage:img forBarMetrics:UIBarMetricsLandscapePhone];
+        }
+        bar.titleTextAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+            [UIColor whiteColor], UITextAttributeTextColor,
+            [UIColor colorWithRed:0.18f green:0.05f blue:0.0f alpha:0.85f], UITextAttributeTextShadowColor,
+            [NSValue valueWithUIOffset:UIOffsetMake(0, -1)], UITextAttributeTextShadowOffset,
+            [UIFont boldSystemFontOfSize:20.0f], UITextAttributeFont, nil];
+    }
 }
 
 void SLStyleTabBar(UITabBar *bar)
 {
     bar.tintColor = SLRGB(SLP()->barTint, 1);
     bar.selectedImageTintColor = SLAccentColor();      /* kolor zaznaczonej ikony; reszta systemowa */
+    if (SLGameCenter()) {
+        UIImage *wood = SLGCImage(@"gc_tab");
+        UIImage *sel = SLGCImage(@"gc_tabsel");
+        if (wood) bar.backgroundImage = [wood resizableImageWithCapInsets:UIEdgeInsetsMake(0, 100, 0, 100)];
+        if (sel) bar.selectionIndicatorImage = [sel resizableImageWithCapInsets:UIEdgeInsetsMake(8, 8, 8, 8)];
+    }
 }
 
 void SLStyleToolbar(UIToolbar *bar)
 {
     bar.tintColor = SLRGB(SLP()->barTint, 1);
+    if (SLGameCenter()) {
+        UIImage *wood = SLGCImage(@"gc_tab");
+        if (wood) [bar setBackgroundImage:[wood resizableImageWithCapInsets:UIEdgeInsetsMake(0, 100, 0, 100)] forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
+    }
 }
 
 void SLStyleSearchBar(UISearchBar *bar)
@@ -314,7 +376,48 @@ UIImage *SLTabIcon(int kind)
 /* Ikona zakładki to sama maska (SLTabIcon); kolory i połysk dodaje system, tak jak w standardowym pasku zakładek. */
 void SLStyleTabItem(UITabBarItem *item, int kind)
 {
-    (void)item; (void)kind;
+    if (!SLGameCenter()) return;
+    [item setFinishedSelectedImage:SLGCTabIcon(kind, YES) withFinishedUnselectedImage:SLGCTabIcon(kind, NO)];
+    NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
+        [UIColor whiteColor], UITextAttributeTextColor,
+        [UIColor colorWithRed:0.20f green:0.06f blue:0.0f alpha:0.9f], UITextAttributeTextShadowColor,
+        [NSValue valueWithUIOffset:UIOffsetMake(0, -1)], UITextAttributeTextShadowOffset,
+        [UIFont boldSystemFontOfSize:10.0f], UITextAttributeFont, nil];
+    [item setTitleTextAttributes:attrs forState:UIControlStateNormal];
+    [item setTitleTextAttributes:attrs forState:UIControlStateSelected];
+}
+
+/* Kolorowa ikona zakładki Game Center: maska SLTabIcon wypełniona pomarańczowym (zaznaczona: złotym) gradientem. */
+UIImage *SLGCTabIcon(int kind, BOOL selected)
+{
+    UIImage *mask = SLTabIcon(kind);
+    CGSize sz = mask.size;
+    UIGraphicsBeginImageContextWithOptions(sz, NO, 0.0f);
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    CGContextTranslateCTM(c, 0, sz.height);
+    CGContextScaleCTM(c, 1.0f, -1.0f);
+    CGRect r = CGRectMake(0, 0, sz.width, sz.height);
+    /* cień pod ikoną */
+    CGContextSaveGState(c);
+    CGContextClipToMask(c, CGRectOffset(r, 0, -1), mask.CGImage);
+    CGContextSetRGBFillColor(c, 0.25f, 0.06f, 0.0f, 0.75f);
+    CGContextFillRect(c, r);
+    CGContextRestoreGState(c);
+    /* wypełnienie gradientem (po odwróceniu osi góra ikony ma większe y) */
+    CGContextSaveGState(c);
+    CGContextClipToMask(c, r, mask.CGImage);
+    UIColor *top = selected ? RGBA(255, 238, 176, 1) : RGBA(252, 190, 120, 1);
+    UIColor *bot = selected ? RGBA(222, 164, 62, 1)  : RGBA(232, 118, 40, 1);
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    NSArray *cols = [NSArray arrayWithObjects:(__bridge id)top.CGColor, (__bridge id)bot.CGColor, nil];
+    CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cols, NULL);
+    CGContextDrawLinearGradient(c, g, CGPointMake(0, sz.height), CGPointMake(0, 0), 0);
+    CGGradientRelease(g);
+    CGColorSpaceRelease(cs);
+    CGContextRestoreGState(c);
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
 }
 
 void SLStyleTable(UITableView *table)
@@ -326,6 +429,12 @@ void SLStyleTable(UITableView *table)
     table.backgroundView = bg;
     table.backgroundColor = [UIColor clearColor];
     table.separatorColor = SLRGB(SLP()->sep, 1);
+    if (SLGameCenter()) {                         /* linie rysuje tło wiersza; u góry odstęp jak w tabeli grupowanej */
+        table.separatorStyle = UITableViewCellSeparatorStyleNone;
+        UIView *gap = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 8)];
+        gap.backgroundColor = [UIColor clearColor];
+        table.tableHeaderView = gap;
+    }
 }
 
 /* ---------- błyszczące przyciski ("żel") ---------- */

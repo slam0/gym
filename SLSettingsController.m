@@ -106,7 +106,7 @@ static const NSInteger kRests[] = { 0, 30, 45, 60, 90, 120, 180, 240 };
     return s == 0 ? 2 : (s == 1 ? 2 : (s == 2 ? 2 : 6));
 }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {

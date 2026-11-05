@@ -19,6 +19,7 @@ typedef struct {
     int shadow[3], chrome[3], danger[3];
     float gridAlpha, shadowAlpha, shadowDY, cellHiAlpha, cellLoAlpha;
     int light;
+    int gc;                       /* motyw Game Center (zielone sukno, drewno) */
 } SLPalette;
 
 const SLPalette *SLP(void);
@@ -31,6 +32,10 @@ void SLSetTheme(NSInteger index);               /* zapisuje i ogłasza SLAppeara
 NSString *SLThemeName(NSInteger index);         /* przetłumaczona nazwa */
 UIImage *SLThemeSwatch(NSInteger index);        /* mała błyszcząca próbka koloru */
 
+BOOL SLGameCenter(void);                /* czy aktywny motyw to Game Center */
+CGFloat SLHeaderHeight(void);           /* wysokość nagłówka sekcji (26, w Game Center 40) */
+UIImage *SLGCImage(NSString *name);     /* grafika motywu Game Center z Resources (nil, gdy brak) */
+UIImage *SLGCTabIcon(int kind, BOOL selected);   /* kolorowa ikona zakładki Game Center */
 UIColor *SLBackgroundColor(void);       /* teksturowane tło tabel */
 UIColor *SLTextColor(void);
 UIColor *SLSubtleColor(void);

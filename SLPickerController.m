@@ -104,7 +104,7 @@ static NSString *Fold(NSString *s)
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)t { return (NSInteger)[_sections count]; }
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[_sections objectAtIndex:(NSUInteger)s] objectForKey:@"items"] count]; }
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
     NSDictionary *sec = [_sections objectAtIndex:(NSUInteger)s];

@@ -73,7 +73,7 @@ static NSTimeInterval SLWeekStart(void)
 
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[SLStore shared] workouts] count]; }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
@@ -173,7 +173,7 @@ static NSTimeInterval SLWeekStart(void)
 - (NSArray *)entries { return [_w objectForKey:@"entries"]; }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)t { return (NSInteger)[[self entries] count]; }
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[[[self entries] objectAtIndex:(NSUInteger)s] objectForKey:@"sets"] count]; }
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
     NSDictionary *e = [[self entries] objectAtIndex:(NSUInteger)s];

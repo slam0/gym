@@ -138,7 +138,7 @@
     return (NSInteger)[[[_history objectAtIndex:(NSUInteger)s - 1] objectForKey:@"sets"] count];
 }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {

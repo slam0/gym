@@ -184,7 +184,7 @@ static double SLMeasureDisplay(NSInteger type, double v)
 
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[_ms count]; }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {

@@ -165,7 +165,7 @@ void SLPromptSavePlan(NSString *suggestedName, NSArray *exerciseIds, id owner)
     return NPROGRAMS;
 }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {
@@ -397,7 +397,7 @@ void SLPromptSavePlan(NSString *suggestedName, NSArray *exerciseIds, id owner)
 
 - (NSInteger)tableView:(UITableView *)t numberOfRowsInSection:(NSInteger)s { return (NSInteger)[[self ids] count]; }
 
-- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return 26; }
+- (CGFloat)tableView:(UITableView *)t heightForHeaderInSection:(NSInteger)s { return SLHeaderHeight(); }
 
 - (UIView *)tableView:(UITableView *)t viewForHeaderInSection:(NSInteger)s
 {

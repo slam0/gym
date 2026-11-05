@@ -7,6 +7,13 @@ static UIColor *C(int r, int g, int b, CGFloat a)
     return [UIColor colorWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a];
 }
 
+/* kolor obrysu paneli: czarny, a w Game Center żółta ramka */
+static UIColor *PanelBorder(const SLPalette *p)
+{
+    if (p->gc) return C(236, 230, 104, 0.95f);
+    return C(0, 0, 0, p->light ? 0.4f : 0.9f);
+}
+
 static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
 {
     CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
@@ -24,20 +31,104 @@ static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
 
 @interface SLGlossBackground : UIView
 @property (nonatomic) BOOL selected;
+@property (nonatomic) BOOL chevron;       /* Game Center: strzałka ">" po prawej */
+@property (nonatomic) int position;       /* Game Center: 0 pierwszy w sekcji, 1 środkowy, 2 ostatni, 3 jedyny */
+- (void)refreshPosition;
 @end
 
 @implementation SLGlossBackground
 - (id)initWithFrame:(CGRect)f
 {
     if ((self = [super initWithFrame:f])) {
-        self.opaque = YES;
+        BOOL gc = SLGameCenter();
+        self.opaque = !gc;
+        self.backgroundColor = gc ? [UIColor clearColor] : nil;
         self.contentMode = UIViewContentModeRedraw;
+        _position = 1;
     }
     return self;
 }
+
+- (void)setChevron:(BOOL)v { if (v != _chevron) { _chevron = v; [self setNeedsDisplay]; } }
+- (void)setPosition:(int)v { if (v != _position) { _position = v; [self setNeedsDisplay]; } }
+
+/* Game Center: wiersze tworzą zaokrąglone grupy, więc tło musi wiedzieć, czy wiersz jest pierwszy, środkowy czy ostatni */
+- (void)refreshPosition
+{
+    if (!SLGameCenter()) return;
+    UIView *cell = self.superview;
+    if (![cell isKindOfClass:[UITableViewCell class]]) return;
+    UIView *v = cell.superview;
+    while (v && ![v isKindOfClass:[UITableView class]]) v = v.superview;
+    UITableView *t = (UITableView *)v;
+    if (!t || !t.dataSource) return;
+    NSIndexPath *ip = [t indexPathForCell:(UITableViewCell *)cell];
+    if (!ip) return;
+    NSInteger n = [t.dataSource tableView:t numberOfRowsInSection:ip.section];
+    self.position = n <= 1 ? 3 : (ip.row == 0 ? 0 : (ip.row == n - 1 ? 2 : 1));
+}
+
+- (void)drawGameCenter:(CGContextRef)c
+{
+    CGRect b = self.bounds;
+    const CGFloat inset = 9.0f, r = 9.0f;
+    CGFloat x0 = inset + 0.5f, x1 = b.size.width - inset - 0.5f, y0 = 0.5f, y1 = b.size.height - 0.5f;
+    BOOL top = (_position == 0 || _position == 3), bot = (_position == 2 || _position == 3);
+    /* wypełnienie: lekki połysk na sukni */
+    UIRectCorner corners = (top ? (UIRectCornerTopLeft | UIRectCornerTopRight) : 0) | (bot ? (UIRectCornerBottomLeft | UIRectCornerBottomRight) : 0);
+    CGRect fr = CGRectMake(x0, top ? y0 : 0, x1 - x0, (bot ? y1 : b.size.height) - (top ? y0 : 0));
+    UIBezierPath *panel = corners ? [UIBezierPath bezierPathWithRoundedRect:fr byRoundingCorners:corners cornerRadii:CGSizeMake(r, r)]
+                                  : [UIBezierPath bezierPathWithRect:fr];
+    CGContextSaveGState(c);
+    [panel addClip];
+    if (_selected) {
+        Gradient(c, b, C(255, 244, 130, 0.38f), C(255, 232, 90, 0.26f));
+    } else {
+        Gradient(c, b, C(255, 255, 255, 0.07f), C(0, 0, 0, 0.05f));
+    }
+    CGContextRestoreGState(c);
+    /* żółta ramka: boki, góra (łuk albo linia rozdzielająca) i dół */
+    [C(236, 230, 104, 0.95f) setStroke];
+    CGContextSetLineWidth(c, 1.0f);
+    CGContextBeginPath(c);
+    CGFloat ly0 = top ? y0 + r : 0, ly1 = bot ? y1 - r : b.size.height;
+    if (top) {
+        CGContextMoveToPoint(c, x0, y0 + r);
+        CGContextAddArcToPoint(c, x0, y0, x0 + r, y0, r);
+        CGContextAddLineToPoint(c, x1 - r, y0);
+        CGContextAddArcToPoint(c, x1, y0, x1, y0 + r, r);
+    } else {
+        CGContextMoveToPoint(c, x0, y0);
+        CGContextAddLineToPoint(c, x1, y0);
+    }
+    CGContextMoveToPoint(c, x0, ly0);
+    CGContextAddLineToPoint(c, x0, ly1);
+    CGContextMoveToPoint(c, x1, ly0);
+    CGContextAddLineToPoint(c, x1, ly1);
+    if (bot) {
+        CGContextMoveToPoint(c, x0, y1 - r);
+        CGContextAddArcToPoint(c, x0, y1, x0 + r, y1, r);
+        CGContextAddLineToPoint(c, x1 - r, y1);
+        CGContextAddArcToPoint(c, x1, y1, x1, y1 - r, r);
+    }
+    CGContextStrokePath(c);
+    if (_chevron) {                                   /* żółta strzałka ">" */
+        CGFloat cx = x1 - 14.0f, cy = b.size.height / 2.0f;
+        CGContextSetLineWidth(c, 2.8f);
+        CGContextSetLineCap(c, kCGLineCapRound);
+        CGContextSetLineJoin(c, kCGLineJoinRound);
+        CGContextBeginPath(c);
+        CGContextMoveToPoint(c, cx - 3.5f, cy - 6.0f);
+        CGContextAddLineToPoint(c, cx + 2.5f, cy);
+        CGContextAddLineToPoint(c, cx - 3.5f, cy + 6.0f);
+        CGContextStrokePath(c);
+    }
+}
+
 - (void)drawRect:(CGRect)rect
 {
     CGContextRef c = UIGraphicsGetCurrentContext();
+    if (SLGameCenter()) { [self drawGameCenter:c]; return; }
     CGRect b = self.bounds;
     CGFloat half = (CGFloat)((int)(b.size.height / 2.0f));
     const SLPalette *p = SLP();
@@ -52,6 +143,12 @@ static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
     CGContextFillRect(c, CGRectMake(0, 0, b.size.width, 1));
     [C(0, 0, 0, p->cellLoAlpha) setFill];
     CGContextFillRect(c, CGRectMake(0, b.size.height - 1, b.size.width, 1));
+}
+@end
+
+@interface SLCell ()
+{
+    BOOL _chevron;
 }
 @end
 
@@ -78,8 +175,73 @@ static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
         self.detailTextLabel.textColor = SLSubtleColor();
         self.detailTextLabel.font = [UIFont systemFontOfSize:13.0f];
         self.detailTextLabel.backgroundColor = [UIColor clearColor];
+        if (SLGameCenter()) {                         /* tytuły szeryfowe, podpisy ciemnozielone jak w Game Center */
+            UIFont *serif = [UIFont fontWithName:@"Georgia-Bold" size:17.0f];
+            if (serif) self.textLabel.font = serif;
+            self.detailTextLabel.shadowColor = [UIColor colorWithWhite:1.0f alpha:0.20f];
+            self.detailTextLabel.shadowOffset = CGSizeMake(0, 1);
+        }
     }
     return self;
+}
+
+/* Game Center: strzałkę ">" rysuje tło wiersza (żółta, wewnątrz ramki), więc systemową wyłączamy */
+- (void)setAccessoryType:(UITableViewCellAccessoryType)type
+{
+    BOOL chev = SLGameCenter() && type == UITableViewCellAccessoryDisclosureIndicator;
+    _chevron = chev;
+    [super setAccessoryType:chev ? UITableViewCellAccessoryNone : type];
+    [(SLGlossBackground *)self.backgroundView setChevron:chev];
+    [(SLGlossBackground *)self.selectedBackgroundView setChevron:chev];
+}
+
+- (void)syncGameCenterBackgrounds
+{
+    SLGlossBackground *bg = (SLGlossBackground *)self.backgroundView;
+    SLGlossBackground *sel = (SLGlossBackground *)self.selectedBackgroundView;
+    [bg refreshPosition];
+    sel.position = bg.position;
+    sel.chevron = _chevron;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    if (!SLGameCenter()) return;
+    [self syncGameCenterBackgrounds];
+    /* treść mieści się wewnątrz ramki (9 pt odstępu z każdej strony, miejsce na strzałkę) */
+    CGFloat inset = 9.0f, right = inset + (_chevron ? 22.0f : 0.0f);
+    CGRect cf = self.contentView.frame;
+    cf.origin.x += inset;
+    cf.size.width -= inset + right;
+    self.contentView.frame = cf;
+    if (self.accessoryView) {                         /* np. "ptaszek" wyboru: wewnątrz ramki */
+        CGRect af = self.accessoryView.frame;
+        af.origin.x -= inset + 4.0f;
+        self.accessoryView.frame = af;
+    }
+    CGFloat shift = self.imageView.image ? 8.0f : 0.0f;
+    UIView *kids[3] = { self.imageView, self.textLabel, self.detailTextLabel };
+    for (int i = 0; i < 3; i++) {
+        UIView *v = kids[i];
+        CGRect f = v.frame;
+        f.origin.x += shift;
+        CGFloat maxX = cf.size.width - 6.0f;
+        if (f.origin.x < maxX && CGRectGetMaxX(f) > maxX && i > 0) f.size.width = maxX - f.origin.x;
+        v.frame = f;
+    }
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+    if (SLGameCenter()) [self syncGameCenterBackgrounds];
+}
+
+- (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated
+{
+    [super setHighlighted:highlighted animated:animated];
+    if (SLGameCenter()) [self syncGameCenterBackgrounds];
 }
 @end
 
@@ -94,7 +256,7 @@ static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
 @implementation SLSectionHeader
 - (id)initWithTitle:(NSString *)title right:(NSString *)right
 {
-    if ((self = [super initWithFrame:CGRectMake(0, 0, 320, 26)])) {
+    if ((self = [super initWithFrame:CGRectMake(0, 0, 320, SLHeaderHeight())])) {
         _title = [title copy];
         _right = [right copy];
         self.opaque = NO;
@@ -104,11 +266,59 @@ static void Gradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom)
     }
     return self;
 }
+/* ozdoba nagłówka Game Center: podwójna strzałka (w prawo ">>" po lewej stronie tytułu, "<<" po prawej) */
+static void DrawOrnament(CGContextRef c, CGFloat x, CGFloat midY, BOOL mirrored)
+{
+    CGContextSaveGState(c);
+    CGContextSetLineWidth(c, 2.2f);
+    CGContextSetLineCap(c, kCGLineCapSquare);
+    CGContextSetLineJoin(c, kCGLineJoinMiter);
+    for (int i = 0; i < 2; i++) {
+        CGFloat ox = x + i * 6.0f;
+        CGFloat dir = mirrored ? -1.0f : 1.0f;
+        CGFloat bx = mirrored ? ox + 6.0f : ox;
+        CGContextBeginPath(c);
+        CGContextMoveToPoint(c, bx, midY - 6.0f);
+        CGContextAddLineToPoint(c, bx + dir * 6.0f, midY);
+        CGContextAddLineToPoint(c, bx, midY + 6.0f);
+        CGContextStrokePath(c);
+    }
+    CGContextRestoreGState(c);
+}
+
+- (void)drawGameCenter:(CGContextRef)c
+{
+    CGRect b = self.bounds;
+    UIFont *f = [UIFont fontWithName:@"Georgia-Bold" size:17.0f];
+    if (!f) f = [UIFont boldSystemFontOfSize:17.0f];
+    CGContextSetShadowWithColor(c, CGSizeMake(0, -1), 0, C(0, 40, 20, 0.55f).CGColor);
+    UIColor *yellow = C(232, 226, 100, 1);
+    [yellow set];
+    [yellow setStroke];
+    CGFloat lineH = f.lineHeight, ty = (CGFloat)((int)((b.size.height - lineH) / 2.0f)) + 4.0f;
+    if ([_right length]) {
+        UIFont *sm = [UIFont fontWithName:@"Georgia-Bold" size:14.0f];
+        if (!sm) sm = [UIFont boldSystemFontOfSize:14.0f];
+        [_title drawInRect:CGRectMake(14, ty, b.size.width - 130, lineH) withFont:f lineBreakMode:NSLineBreakByTruncatingTail];
+        [_right drawInRect:CGRectMake(b.size.width - 130, ty + 2, 116, lineH) withFont:sm lineBreakMode:NSLineBreakByTruncatingTail alignment:NSTextAlignmentRight];
+        return;
+    }
+    CGFloat maxW = b.size.width - 2.0f * 54.0f;
+    CGFloat w = [_title sizeWithFont:f].width;
+    if (w > maxW) w = maxW;
+    CGFloat tx = (CGFloat)((int)((b.size.width - w) / 2.0f));
+    [_title drawInRect:CGRectMake(tx, ty, w, lineH) withFont:f lineBreakMode:NSLineBreakByTruncatingTail alignment:NSTextAlignmentCenter];
+    CGFloat midY = ty + lineH / 2.0f + 1.0f;
+    DrawOrnament(c, tx - 28.0f, midY, NO);
+    DrawOrnament(c, tx + w + 10.0f, midY, YES);
+}
+
 - (void)drawRect:(CGRect)rect
 {
     CGContextRef c = UIGraphicsGetCurrentContext();
     CGRect b = self.bounds;
     const SLPalette *p = SLP();
+    if (p->gc) { [self drawGameCenter:c]; return; }
     Gradient(c, b, SLRGB(p->hdrT, 0.97f), SLRGB(p->hdrB, 0.97f));
     [C(255, 255, 255, p->light ? 0.35f : 0.10f) setFill];
     CGContextFillRect(c, CGRectMake(0, 0, b.size.width, 1));
@@ -183,7 +393,7 @@ static UIImage *SLFieldImage(void)
     [path addClip];
     Gradient(c, CGRectMake(0, 0, 20, 34), SLRGB(p->fieldT, 1), SLRGB(p->fieldB, 1));
     CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
+    [PanelBorder(p) setStroke];
     [path stroke];
     [C(255, 255, 255, p->light ? 0.8f : 0.12f) setFill];
     CGContextFillRect(c, CGRectMake(5, 33, 10, 1));
@@ -227,21 +437,29 @@ static UIImage *SLFieldImage(void)
     if ((self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuse])) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.backgroundView = [[SLGlossBackground alloc] initWithFrame:self.bounds];
-        self.numLabel = [self makeLabel:CGRectMake(6, 14, 28, 22) size:16 bold:YES color:SLSubtleColor() align:NSTextAlignmentCenter];
-        self.kgField = [self makeField:CGRectMake(38, 8, 74, 34)];
+        /* w Game Center wiersz leży w ramce z 9 pt odstępu, więc elementy są trochę ciaśniej */
+        BOOL gc = SLGameCenter();
+        self.numLabel = [self makeLabel:(gc ? CGRectMake(12, 14, 26, 22) : CGRectMake(6, 14, 28, 22)) size:16 bold:YES color:SLSubtleColor() align:NSTextAlignmentCenter];
+        self.kgField = [self makeField:(gc ? CGRectMake(40, 8, 70, 34) : CGRectMake(38, 8, 74, 34))];
         self.kgField.keyboardType = UIKeyboardTypeDecimalPad;
         [self.contentView addSubview:self.kgField];
-        self.unitLabel = [self makeLabel:CGRectMake(114, 14, 26, 22) size:13 bold:NO color:SLSubtleColor() align:NSTextAlignmentLeft];
-        self.repsField = [self makeField:CGRectMake(142, 8, 62, 34)];
+        self.unitLabel = [self makeLabel:(gc ? CGRectMake(112, 14, 24, 22) : CGRectMake(114, 14, 26, 22)) size:13 bold:NO color:SLSubtleColor() align:NSTextAlignmentLeft];
+        self.repsField = [self makeField:(gc ? CGRectMake(138, 8, 58, 34) : CGRectMake(142, 8, 62, 34))];
         self.repsField.keyboardType = UIKeyboardTypeNumberPad;
         [self.contentView addSubview:self.repsField];
-        self.repsLabel = [self makeLabel:CGRectMake(206, 14, 44, 22) size:13 bold:NO color:SLSubtleColor() align:NSTextAlignmentLeft];
+        self.repsLabel = [self makeLabel:(gc ? CGRectMake(198, 14, 40, 22) : CGRectMake(206, 14, 44, 22)) size:13 bold:NO color:SLSubtleColor() align:NSTextAlignmentLeft];
         self.repsLabel.text = GL(@"powt.");
-        self.recordLabel = [self makeLabel:CGRectMake(38, 41, 200, 10) size:10 bold:YES color:SLAccentColor() align:NSTextAlignmentLeft];
-        self.doneButton = SLGelButton(@"", 1, CGRectMake(262, 7, 48, 36));
+        self.recordLabel = [self makeLabel:(gc ? CGRectMake(40, 41, 200, 10) : CGRectMake(38, 41, 200, 10)) size:10 bold:YES color:SLAccentColor() align:NSTextAlignmentLeft];
+        self.doneButton = SLGelButton(@"", 1, gc ? CGRectMake(250, 7, 48, 36) : CGRectMake(262, 7, 48, 36));
         [self.contentView addSubview:self.doneButton];
     }
     return self;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    if (SLGameCenter()) [(SLGlossBackground *)self.backgroundView refreshPosition];
 }
 
 - (void)setDone:(BOOL)done
@@ -281,7 +499,7 @@ static UIImage *SLFieldImage(void)
     /* odbicie: szklany połysk na górnej połowie */
     Gradient(c, CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * 0.5f), C(255, 255, 255, p->light ? 0.55f : 0.22f), C(255, 255, 255, p->light ? 0.10f : 0.04f));
     CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.45f : 0.9f) setStroke];
+    [PanelBorder(p) setStroke];
     [shape stroke];
     [C(255, 255, 255, 0.16f) setFill];
     CGContextFillRect(c, CGRectMake(8, 1, self.bounds.size.width - 16, 1));
@@ -324,7 +542,7 @@ static UIImage *SLFieldImage(void)
     const SLPalette *p = SLP();
     Gradient(c, b, SLRGB(p->panelT, 1), SLRGB(p->panelB, 1));
     CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
+    [PanelBorder(p) setStroke];
     [panel stroke];
 
     NSArray *vals = self.values;
@@ -421,7 +639,7 @@ static UIImage *SLFieldImage(void)
     [panel addClip];
     Gradient(c, b, SLRGB(p->panelT, 1), SLRGB(p->panelB, 1));
     CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
+    [PanelBorder(p) setStroke];
     [panel stroke];
 
     NSUInteger n = [_values count];
@@ -501,7 +719,7 @@ static UIImage *SLFieldImage(void)
     [panel addClip];
     Gradient(c, b, SLRGB(p->panelT, 1), SLRGB(p->panelB, 1));
     CGContextRestoreGState(c);
-    [C(0, 0, 0, p->light ? 0.4f : 0.9f) setStroke];
+    [PanelBorder(p) setStroke];
     [panel stroke];
     if (_year <= 0) return;
 
