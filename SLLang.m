@@ -170,6 +170,20 @@ static const struct { NSString *pl, *en, *ru; } kStrings[] = {
     { @"Fiolet", @"Purple", @"Фиолетовый" },
     { @"Srebro", @"Silver", @"Серебро" },
     { @"Len", @"Linen", @"Лён" },
+    { @"Zapraszamy!", @"Welcome!", @"Добро пожаловать!" },
+    { @"Kolejny trening?", @"Another workout?", @"Ещё одна тренировка?" },
+    { @"Do dzieła!", @"Let's get to work!", @"За дело!" },
+    { @"Czas na serię!", @"Time for a set!", @"Пора на подход!" },
+    { @"Dziś bijemy rekord?", @"Going for a record today?", @"Сегодня бьём рекорд?" },
+    { @"Każdy trening się liczy.", @"Every workout counts.", @"Каждая тренировка важна." },
+    { @"Mały krok, wielka forma.", @"Small steps, big shape.", @"Маленький шаг к большой форме." },
+    { @"Żelazo już czeka.", @"The iron is waiting.", @"Железо уже ждёт." },
+    { @"Rozgrzewka zrobiona?", @"Warmed up yet?", @"Размялся?" },
+    { @"Dziś dobry dzień na trening.", @"Good day for a workout.", @"Хороший день для тренировки." },
+    { @"Ostatnie powtórzenie robi różnicę.", @"The last rep makes the difference.", @"Последнее повторение решает." },
+    { @"Ciężar sam się nie podniesie.", @"The weight won't lift itself.", @"Вес сам не поднимется." },
+    { @"Jak się czujesz? Dasz radę!", @"Feeling strong? You've got this!", @"Как настроение? Ты справишься!" },
+    { @"Wracamy do formy!", @"Back to form!", @"Возвращаемся в форму!" },
     { @"Game Center (beta)", @"Game Center (beta)", @"Game Center (бета)" },
     { @"Zdjęcia ćwiczeń", @"Exercise photos", @"Фото упражнений" },
     { @"Tekstura tła", @"Background texture", @"Текстура фона" },
@@ -283,6 +297,20 @@ NSString *GL(NSString *pl)
     }
     NSString *t = [tables[l - 1] objectForKey:pl];
     return t ? t : pl;
+}
+
+
+NSString *SLGreeting(void)
+{
+    static const char *kGreetings[] = {
+        "Zapraszamy!", "Kolejny trening?", "Do dzieła!", "Czas na serię!", "Dziś bijemy rekord?", "Każdy trening się liczy.",
+        "Mały krok, wielka forma.", "Żelazo już czeka.", "Rozgrzewka zrobiona?", "Dziś dobry dzień na trening.",
+        "Ostatnie powtórzenie robi różnicę.", "Ciężar sam się nie podniesie.", "Jak się czujesz? Dasz radę!", "Wracamy do formy!"
+    };
+    static NSInteger idx = -1;
+    NSInteger count = (NSInteger)(sizeof(kGreetings) / sizeof(kGreetings[0]));
+    if (idx < 0) idx = (NSInteger)(arc4random() % (uint32_t)count);
+    return GL([NSString stringWithUTF8String:kGreetings[idx]]);
 }
 
 /* formy: {pojedyncza, "kilka", reszta} dla każdego języka */

@@ -1,3 +1,4 @@
+#import <QuartzCore/QuartzCore.h>
 #import "SLWorkoutController.h"
 #import "SLStore.h"
 #import "SLTheme.h"
@@ -99,12 +100,27 @@ static UILocalNotification *gRestNote;
     _startView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _startView.backgroundColor = SLBackgroundColor();
 
-    UILabel *title = [self startLabel:CGRectMake(20, 8, 280, 34) size:28 bold:YES color:SLTextColor()];
+    /* nagłówek: ikona aplikacji, obok napis "Gym", a pod nim krótkie powitanie (inne przy każdym uruchomieniu) */
+    UIImageView *icon = [[UIImageView alloc] initWithFrame:CGRectMake(24, 8, 48, 48)];
+    icon.image = [UIImage imageNamed:@"Icon"];
+    icon.layer.cornerRadius = 11.0f;
+    icon.layer.masksToBounds = YES;
+    icon.layer.borderWidth = 0.5f;
+    icon.layer.borderColor = [UIColor colorWithWhite:0.0f alpha:0.55f].CGColor;
+    [_startView addSubview:icon];
+    UILabel *title = [self startLabel:CGRectMake(82, 6, 220, 32) size:28 bold:YES color:SLTextColor()];
+    title.textAlignment = NSTextAlignmentLeft;
+    if (SLGameCenter()) title.font = SLTitleFont(28);
     title.text = @"Gym";
+    UILabel *greet = [self startLabel:CGRectMake(82, 37, 226, 20) size:14 bold:NO color:SLSubtleColor()];
+    greet.textAlignment = NSTextAlignmentLeft;
+    greet.adjustsFontSizeToFitWidth = YES;
+    greet.minimumScaleFactor = 0.7f;
+    greet.text = SLGreeting();
 
-    _countView  = [[SLStatView alloc] initWithFrame:CGRectMake(10, 50, 96, 76)];
-    _timeView   = [[SLStatView alloc] initWithFrame:CGRectMake(112, 50, 96, 76)];
-    _volumeView = [[SLStatView alloc] initWithFrame:CGRectMake(214, 50, 96, 76)];
+    _countView  = [[SLStatView alloc] initWithFrame:CGRectMake(10, 66, 96, 76)];
+    _timeView   = [[SLStatView alloc] initWithFrame:CGRectMake(112, 66, 96, 76)];
+    _volumeView = [[SLStatView alloc] initWithFrame:CGRectMake(214, 66, 96, 76)];
     _countView.caption = GL(@"Treningi");
     _timeView.caption = GL(@"Czas");
     _volumeView.caption = GL(@"Objętość");
@@ -112,18 +128,18 @@ static UILocalNotification *gRestNote;
     [_startView addSubview:_timeView];
     [_startView addSubview:_volumeView];
 
-    _detail = [self startLabel:CGRectMake(10, 130, 300, 18) size:13 bold:NO color:SLSubtleColor()];
+    _detail = [self startLabel:CGRectMake(10, 146, 300, 18) size:13 bold:NO color:SLSubtleColor()];
 
-    UIButton *start = SLGelButton(GL(@"Rozpocznij trening"), 0, CGRectMake(20, 160, 280, 56));
+    UIButton *start = SLGelButton(GL(@"Rozpocznij trening"), 0, CGRectMake(20, 174, 280, 56));
     start.titleLabel.font = [UIFont boldSystemFontOfSize:21];
     [start addTarget:self action:@selector(startTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:start];
 
-    _repeatButton = SLGelButton(GL(@"Powtórz ostatni trening"), 1, CGRectMake(20, 228, 280, 46));
+    _repeatButton = SLGelButton(GL(@"Powtórz ostatni trening"), 1, CGRectMake(20, 240, 280, 46));
     [_repeatButton addTarget:self action:@selector(repeatTapped) forControlEvents:UIControlEventTouchUpInside];
     [_startView addSubview:_repeatButton];
 
-    _lastLabel = [self startLabel:CGRectMake(20, 284, 280, 56) size:13 bold:NO color:SLSubtleColor()];
+    _lastLabel = [self startLabel:CGRectMake(20, 294, 280, 56) size:13 bold:NO color:SLSubtleColor()];
     _lastLabel.numberOfLines = 3;
     [self.view addSubview:_startView];
 }

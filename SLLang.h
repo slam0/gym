@@ -20,3 +20,6 @@ NSString *GL(NSString *pl);
 enum { SLNounSet = 0, SLNounExercise = 1, SLNounRep = 2, SLNounWorkout = 3 };
 NSString *SLNounString(long n, int noun);                    /* "serii" */
 NSString *SLCountString(long n, int noun);                   /* "5 serii" */
+
+/* powitanie pod napisem "Gym" na stronie głównej: wybierane losowo raz na uruchomienie aplikacji */
+NSString *SLGreeting(void);

@@ -1,4 +1,6 @@
-Gym 1.7.2 - motyw GAME CENTER (beta) (jak w iOS 6) + ekran powitalny z tablicą i ikona z karteczką
+Gym 1.8.0 - powitanie na Głównej, motyw GAME CENTER (beta) (jak w iOS 6) + ekran powitalny z tablicą i ikona z karteczką
+
+NOWE W 1.8.0: na stronie Główna u góry jest ikona aplikacji, obok napis "Gym", a pod nim powitanie ("Zapraszamy!", "Kolejny trening?", "Do dzieła!" i inne, 14 sztuk po polsku, angielsku i rosyjsku). Powitanie losuje się raz przy każdym uruchomieniu aplikacji.
 
 ZMIANY W 1.7.2: domyślnym motywem na świeżej instalacji jest Len; motyw Game Center nazywa się teraz "Game Center (beta)" (Ustawienia -> Motyw). Ustawienia, które już masz zapisane, się nie zmieniają.
 
