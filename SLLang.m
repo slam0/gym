@@ -300,17 +300,28 @@ NSString *GL(NSString *pl)
 }
 
 
+static const char *kGreetings[] = {
+    "Zapraszamy!", "Kolejny trening?", "Do dzieła!", "Czas na serię!", "Dziś bijemy rekord?", "Każdy trening się liczy.",
+    "Mały krok, wielka forma.", "Żelazo już czeka.", "Rozgrzewka zrobiona?", "Dziś dobry dzień na trening.",
+    "Ostatnie powtórzenie robi różnicę.", "Ciężar sam się nie podniesie.", "Jak się czujesz? Dasz radę!", "Wracamy do formy!"
+};
+static NSInteger gGreetingIdx = -1;
+
+#define NGREETINGS ((NSInteger)(sizeof(kGreetings) / sizeof(kGreetings[0])))
+
 NSString *SLGreeting(void)
 {
-    static const char *kGreetings[] = {
-        "Zapraszamy!", "Kolejny trening?", "Do dzieła!", "Czas na serię!", "Dziś bijemy rekord?", "Każdy trening się liczy.",
-        "Mały krok, wielka forma.", "Żelazo już czeka.", "Rozgrzewka zrobiona?", "Dziś dobry dzień na trening.",
-        "Ostatnie powtórzenie robi różnicę.", "Ciężar sam się nie podniesie.", "Jak się czujesz? Dasz radę!", "Wracamy do formy!"
-    };
-    static NSInteger idx = -1;
-    NSInteger count = (NSInteger)(sizeof(kGreetings) / sizeof(kGreetings[0]));
-    if (idx < 0) idx = (NSInteger)(arc4random() % (uint32_t)count);
-    return GL([NSString stringWithUTF8String:kGreetings[idx]]);
+    if (gGreetingIdx < 0) gGreetingIdx = (NSInteger)(arc4random() % (uint32_t)NGREETINGS);
+    return GL([NSString stringWithUTF8String:kGreetings[gGreetingIdx]]);
+}
+
+NSString *SLNextGreeting(void)
+{
+    NSInteger old = gGreetingIdx;
+    NSInteger n = (NSInteger)(arc4random() % (uint32_t)NGREETINGS);
+    if (n == old) n = (n + 1) % NGREETINGS;      /* zawsze inne niż poprzednie */
+    gGreetingIdx = n;
+    return GL([NSString stringWithUTF8String:kGreetings[gGreetingIdx]]);
 }
 
 /* formy: {pojedyncza, "kilka", reszta} dla każdego języka */

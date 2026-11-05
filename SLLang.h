@@ -23,3 +23,4 @@ NSString *SLCountString(long n, int noun);                   /* "5 serii" */
 
 /* powitanie pod napisem "Gym" na stronie głównej: wybierane losowo raz na uruchomienie aplikacji */
 NSString *SLGreeting(void);
+NSString *SLNextGreeting(void);          /* losuje inne powitanie niż poprzednie */

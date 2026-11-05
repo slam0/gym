@@ -21,6 +21,8 @@
     UIToolbar *_restBar;
     UILabel *_restLabel;
     NSTimer *_timer;
+    UILabel *_greetLabel;
+    int _greetTicks;
     UIToolbar *_kbBar;
     UIView *_footer;
     UILabel *_hint;
@@ -117,6 +119,7 @@ static UILocalNotification *gRestNote;
     greet.adjustsFontSizeToFitWidth = YES;
     greet.minimumScaleFactor = 0.7f;
     greet.text = SLGreeting();
+    _greetLabel = greet;
 
     _countView  = [[SLStatView alloc] initWithFrame:CGRectMake(10, 66, 96, 76)];
     _timeView   = [[SLStatView alloc] initWithFrame:CGRectMake(112, 66, 96, 76)];
@@ -267,6 +270,16 @@ static UILocalNotification *gRestNote;
 
 - (void)tick
 {
+    /* powitanie na stronie startowej zmienia się co 5 sekund, z płynnym przejściem */
+    if (_greetLabel && !_startView.hidden && self.view.window) {
+        if (++_greetTicks >= 5) {
+            _greetTicks = 0;
+            [UIView transitionWithView:_greetLabel duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve
+                            animations:^{ _greetLabel.text = SLNextGreeting(); } completion:nil];
+        }
+    } else {
+        _greetTicks = 0;
+    }
     if ([[SLStore shared] active]) [self updateTitle];
     if (gRestEnd > 0) {
         long left = (long)(gRestEnd - [[NSDate date] timeIntervalSince1970] + 0.999);
