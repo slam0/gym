@@ -101,7 +101,7 @@ NSString *const SLStoreDidChangeNotification = @"SLStoreDidChangeNotification";
 - (void)setRestSeconds:(NSInteger)s { [_root setObject:[NSNumber numberWithInteger:s] forKey:@"rest"]; [self save]; }
 - (NSInteger)languageSetting { return [[_root objectForKey:@"lang"] integerValue]; }
 - (void)setLanguageSetting:(NSInteger)v { [_root setObject:[NSNumber numberWithInteger:v] forKey:@"lang"]; _all = nil; [self save]; }
-- (NSInteger)themeIndex { NSNumber *n = [_root objectForKey:@"theme"]; return n ? [n integerValue] : 7; }   /* nowa instalacja: Game Center */
+- (NSInteger)themeIndex { NSNumber *n = [_root objectForKey:@"theme"]; return n ? [n integerValue] : 6; }   /* nowa instalacja: Len */
 - (void)setThemeIndex:(NSInteger)v { [_root setObject:[NSNumber numberWithInteger:v] forKey:@"theme"]; [self save]; }
 
 /* ---------- ćwiczenia ---------- */

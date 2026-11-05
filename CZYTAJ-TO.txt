@@ -1,9 +1,11 @@
-Gym 1.7.1 - motyw GAME CENTER (jak w iOS 6) + ekran powitalny z tablicą i ikona z karteczką
+Gym 1.7.2 - motyw GAME CENTER (beta) (jak w iOS 6) + ekran powitalny z tablicą i ikona z karteczką
+
+ZMIANY W 1.7.2: domyślnym motywem na świeżej instalacji jest Len; motyw Game Center nazywa się teraz "Game Center (beta)" (Ustawienia -> Motyw). Ustawienia, które już masz zapisane, się nie zmieniają.
 
 POPRAWKI W 1.7.1: ekran powitalny zaczyna się pod paskiem statusu (górna deska nie jest już ucięta); w Game Center wszystkie tytuły wierszy mają tę samą czcionkę (Georgia); przyciski na pasku (Anuluj, Nowe, +, Wstecz, Ustawienia) mają drewniane tło z ramką.
 
 NOWE W 1.7.0: motyw "Game Center" - zielone sukno w tle, drewniany pasek u góry i drewniane zakładki na dole (zaznaczona zakładka ciemniejsza), wiersze w zaokrąglonych grupach z żółtą ramką i żółtą strzałką ">", tytuły czcionką szeryfową (Georgia), nagłówki sekcji żółte z ozdobnymi strzałkami po bokach.
-- Na świeżej instalacji jest motywem domyślnym. Jeśli masz już zapisane ustawienia: Główna -> Ustawienia -> Motyw -> Game Center.
+- Wybierasz go w: Główna -> Ustawienia -> Motyw -> Game Center (beta).
 - Grafiki sukna i drewna leżą w Resources (gc_felt, gc_nav, gc_tab, gc_tabsel, każda też w wersji @2x).
 - Pozostałe motywy (Grafit, Błękit, ...) działają jak dawniej.
 

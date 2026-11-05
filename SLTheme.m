@@ -15,7 +15,7 @@ static const struct { NSString *name; int accent[3]; int light; int linen; int g
     { @"Fiolet",   { 170, 110, 255 }, 0, 0 },
     { @"Srebro",   {  22, 118, 220 }, 1, 2 },          /* jasne, ze srebrnoszarą teksturą systemowego tła UIKit (underPageBackgroundColor) */
     { @"Len",      { 255, 138,   0 }, 0, 1 },          /* grafit z ciemnym lnem w tle (systemowy len iOS 6) */
-    { @"Game Center", { 240, 200, 70 }, 0, 0, 1 },     /* zielone sukno, drewniane paski, żółte ramki jak w Game Center z iOS 6 */
+    { @"Game Center (beta)", { 240, 200, 70 }, 0, 0, 1 },     /* zielone sukno, drewniane paski, żółte ramki jak w Game Center z iOS 6 */
 };
 
 static void SLFillGradient(CGContextRef c, CGRect r, UIColor *top, UIColor *bottom);
